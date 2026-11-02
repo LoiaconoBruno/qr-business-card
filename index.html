@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tarjeta digital</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .dos { display: grid; grid-template-columns: 1fr 1fr; gap: 0 10px; }
+    @media (max-width: 500px) { .dos { grid-template-columns: 1fr; } }
+    #tarjeta { width: 100%; height: auto; aspect-ratio: 1050 / 600; border-radius: 12px; box-shadow: 0 6px 24px rgba(0,0,0,0.18); background: #fff; }
+    .info { font-size: 0.9rem; background: var(--surface-2); border-radius: 8px; padding: 10px 12px; }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <h1>Tarjeta digital</h1>
+    <p>Tu tarjeta de presentación en dos formatos: un contacto ordenado (.vcf) y una imagen con un QR que, escaneado con la cámara de cualquier teléfono, agrega el contacto. Sin instalar nada.</p>
+  </header>
+
+  <main>
+    <div class="layout">
+      <section class="card" aria-labelledby="t-datos">
+        <h2 id="t-datos">Tus datos</h2>
+        <form id="form" autocomplete="off">
+          <div class="dos">
+            <div><label for="nombre">Nombre</label><input type="text" id="nombre"></div>
+            <div><label for="apellido">Apellido</label><input type="text" id="apellido"></div>
+          </div>
+          <label for="cargo">Profesión o cargo</label><input type="text" id="cargo">
+          <label for="empresa">Empresa o consultorio</label><input type="text" id="empresa">
+          <div class="dos">
+            <div><label for="telefono">Teléfono</label><input type="tel" id="telefono"></div>
+            <div><label for="email">Email</label><input type="email" id="email"></div>
+          </div>
+          <label for="web">Web</label><input type="url" id="web">
+          <label for="direccion">Dirección</label><input type="text" id="direccion">
+          <label for="nota">Nota (solo en el contacto, no en la imagen)</label><input type="text" id="nota">
+          <label for="tema">Estilo</label>
+          <select id="tema"><option value="claro">Claro</option><option value="oscuro">Oscuro</option><option value="terracota">Terracota</option></select>
+        </form>
+        <div class="row" style="margin-top:12px"><button id="ejemplo">Cargar ejemplo</button><button id="limpiar">Limpiar</button></div>
+      </section>
+
+      <div style="display:grid; gap:16px; min-width:0">
+        <section class="card">
+          <h2>Vista previa</h2>
+          <canvas id="tarjeta" width="1050" height="600" aria-label="Vista previa de la tarjeta con el código QR"></canvas>
+          <p class="small" id="estado" aria-live="polite"></p>
+          <div class="row">
+            <button id="vcf" class="primary">Descargar contacto (.vcf)</button>
+            <button id="png">Descargar imagen (PNG)</button>
+            <button id="compartir" hidden>Compartir</button>
+          </div>
+        </section>
+        <section class="card">
+          <h2>Cómo se usa</h2>
+          <div class="info">
+            <p style="margin-top:0"><b>Para darla:</b> mostrá la imagen en tu teléfono (o imprimila): el otro la escanea con la cámara y le aparece "Agregar contacto". No necesita ninguna app.</p>
+            <p><b>Para guardarla:</b> la imagen va a la galería y se reconoce de un vistazo; como lleva el QR, la foto misma sirve para volver a importar el contacto.</p>
+            <p style="margin-bottom:0"><b>NFC:</b> esta versión no escribe tags NFC. Un tag con un enlace a la imagen o al .vcf publicado en la web hace lo mismo con un toque.</p>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer>Los datos no salen de tu navegador: no hay servidor. Se recuerdan en este navegador para la próxima vez.</footer>
+
+  <script src="src/qr.js"></script>
+  <script src="src/vcard.js"></script>
+  <script src="src/dibujo.js"></script>
+  <script src="src/app.js"></script>
+</body>
+</html>

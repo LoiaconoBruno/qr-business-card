@@ -1,0 +1,10 @@
+{
+  "name": "tarjetas-de-presentacion",
+  "version": "0.1.0",
+  "description": "Tarjeta de presentación digital: contacto vCard e imagen con QR, sin instalar nada",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test"
+  }
+}
