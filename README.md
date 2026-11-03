@@ -4,7 +4,7 @@
 
 **Tarjeta digital.** Tu tarjeta como contacto (.vcf) y como imagen con un QR que cualquier cámara convierte en contacto. Con un codificador QR propio, sin dependencias.
 
-[**▶ Probala en vivo**](https://loiaconobruno.github.io/qr-business-card/) · [Cómo funciona](#cómo-funciona) · [Limitaciones](#limitaciones)
+[**▶ Probala en vivo**](https://loiaconobruno.github.io/qr-business-card/) · [**📄 Paper y guía**](https://loiaconobruno.github.io/qr-business-card/guia.html) · [Cómo funciona](#cómo-funciona) · [Limitaciones](#limitaciones)
 
 [![Tests](https://github.com/LoiaconoBruno/qr-business-card/actions/workflows/tests.yml/badge.svg)](https://github.com/LoiaconoBruno/qr-business-card/actions/workflows/tests.yml)
 ![Dependencias: 0](https://img.shields.io/badge/dependencias-0-brightgreen)
@@ -98,6 +98,10 @@ Prueba las versiones 1 a 13 en M y L al máximo de su capacidad, las 8 máscaras
 - Publicarla (por ejemplo en GitHub Pages) y grabar un tag NFC con el enlace a la tarjeta.
 - Probarla con 10 personas reales y anotar dónde se traban.
 - Elegir un nicho (profesionales de la salud, congresos) y ver qué les falta a NameDrop, Popl y Blinq.
+
+## Paper de uso y guía
+
+[`guia.html`](https://loiaconobruno.github.io/qr-business-card/guia.html) (fuente en [`docs/guia.md`](docs/guia.md)) tiene un paper de uso paso a paso y una guía de unas 20 páginas sobre la idea de fondo, con citas a los especialistas del tema.
 
 ## Licencia
 
