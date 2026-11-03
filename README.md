@@ -1,4 +1,19 @@
-# Tarjeta digital
+<div align="center">
+
+# QR Business Card
+
+**Tarjeta digital.** Tu tarjeta como contacto (.vcf) y como imagen con un QR que cualquier cámara convierte en contacto. Con un codificador QR propio, sin dependencias.
+
+[**▶ Probala en vivo**](https://loiaconobruno.github.io/qr-business-card/) · [Cómo funciona](#cómo-funciona) · [Limitaciones](#limitaciones)
+
+[![Tests](https://github.com/LoiaconoBruno/qr-business-card/actions/workflows/tests.yml/badge.svg)](https://github.com/LoiaconoBruno/qr-business-card/actions/workflows/tests.yml)
+![Dependencias: 0](https://img.shields.io/badge/dependencias-0-brightgreen)
+![HTML, CSS y JavaScript](https://img.shields.io/badge/HTML%20%C2%B7%20CSS%20%C2%B7%20JS-sin%20build-f7df1e)
+[![Licencia MIT](https://img.shields.io/badge/licencia-MIT-blue)](LICENSE)
+
+<img src="docs/captura.png" alt="Captura de QR Business Card" width="800">
+
+</div>
 
 Página para armar tu tarjeta de presentación en **dos formatos**: un **contacto ordenado (.vcf)** y una **imagen de la tarjeta con un código QR** que, escaneado con la cámara de cualquier teléfono, agrega el contacto. No hace falta instalar nada, ni para darla ni para recibirla.
 
@@ -10,11 +25,23 @@ El problema que decide todo en estas apps es que el otro no tenga la app. El QR 
 
 ## Instalación
 
-No hace falta instalar nada. Es una página estática sin dependencias. Para correr los tests hace falta Node 18 o más nuevo.
+No hace falta instalar nada: **[abrila en el navegador](https://loiaconobruno.github.io/qr-business-card/)**.
+
+Para usarla sin conexión o modificarla:
+
+```bash
+git clone https://github.com/LoiaconoBruno/qr-business-card.git
+```
+
+Después abrí `index.html` con doble clic. No hay dependencias ni paso de build. Para correr los tests hace falta Node 18 o más nuevo:
+
+```bash
+npm test
+```
 
 ## Uso
 
-Abrí `index.html` con doble clic.
+Abrí la [demo en vivo](https://loiaconobruno.github.io/qr-business-card/) o `index.html` con doble clic.
 
 Ejemplo:
 

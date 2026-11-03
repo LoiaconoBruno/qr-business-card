@@ -1,10 +1,16 @@
 {
-  "name": "tarjetas-de-presentacion",
+  "name": "qr-business-card",
   "version": "0.1.0",
-  "description": "Tarjeta de presentación digital: contacto vCard e imagen con QR, sin instalar nada",
+  "description": "Tarjeta de presentación como vCard e imagen con QR, con un codificador QR propio sin dependencias.",
   "private": true,
   "license": "MIT",
   "scripts": {
     "test": "node --test"
-  }
+  },
+  "homepage": "https://loiaconobruno.github.io/qr-business-card/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LoiaconoBruno/qr-business-card.git"
+  },
+  "author": "Bruno Loiacono"
 }
