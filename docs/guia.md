@@ -395,7 +395,38 @@ El próximo paso es probarla con diez personas reales y anotar dónde se traban.
 - **Quien recibe el .vcf:** ¿se abre directamente en contactos, o queda en descargas?
 - **Una semana después:** ¿quien recibió la tarjeta la encuentra? ¿Por nombre, en contactos, o por imagen, en la galería? Esta es la prueba de la segunda observación de la idea.
 
-### 24. Del modelo al código
+### 24. Del otro lado: cómo lee un teléfono un QR
+
+La herramienta escribe códigos QR; la verificación de la sección 7 usa un lector ajeno para leerlos. Entender cómo funciona ese lector ayuda a entender por qué el QR tiene la forma que tiene.
+
+#### 24.1 Separar el negro del blanco
+
+Una foto de un QR no tiene módulos negros y blancos sino miles de tonos de gris, con sombras, reflejos y una iluminación despareja. El primer paso del lector es **binarizar**: decidir, para cada píxel, si es oscuro o claro. Un umbral fijo falla con iluminación despareja, así que se usan umbrales que se adaptan. El método clásico es el de Nobuyuki Otsu (*IEEE Transactions on Systems, Man, and Cybernetics*, 9(1), 62–66, 1979): elegir el umbral que mejor separa el histograma de grises en dos grupos, minimizando la variación dentro de cada uno. Los lectores modernos lo aplican por regiones, con un umbral distinto para cada zona de la imagen.
+
+#### 24.2 Encontrar las esquinas
+
+Con la imagen binarizada, el lector recorre las filas buscando la secuencia negro-blanco-negro-blanco-negro en proporción 1:1:3:1:1, la firma de los patrones de búsqueda (sección 15.1). Cuando la encuentra en una fila, verifica que aparezca también en la columna que pasa por el centro y en las diagonales. Como la proporción se mantiene aunque el código esté rotado o visto en diagonal, el lector encuentra las tres esquinas en cualquier orientación. Esa es la razón de la elección de Masahiro Hara: una proporción que casi no aparece por casualidad en textos e imágenes, y que se reconoce desde cualquier ángulo.
+
+#### 24.3 Enderezar la imagen
+
+Con las tres esquinas (y, desde la versión 2, el patrón de alineación de la cuarta), el lector calcula una **transformación proyectiva**: la que lleva el cuadrilátero deformado de la foto a un cuadrado perfecto. Es la misma matemática de la perspectiva de los pintores del Renacimiento, formalizada en la geometría proyectiva. Con esa transformación, el lector calcula dónde cae, en la foto, el centro de cada módulo, y lee su color. Los patrones de sincronización le permiten corregir pequeños errores acumulados en la grilla, y los de alineación, la curvatura de una superficie no plana.
+
+#### 24.4 Corregir los errores
+
+Con los módulos leídos, el lector quita la máscara (que encuentra en la información de formato), reordena las palabras en el orden de los bloques y aplica la decodificación de Reed-Solomon. El paso central es el algoritmo de Berlekamp, que James Massey reformuló en 1969 como un problema de síntesis de registros de desplazamiento (*IEEE Transactions on Information Theory*, 15(1), 122–127): a partir de los **síndromes** (los restos que deberían ser cero si no hubiera errores), encuentra el polinomio que localiza las posiciones erróneas, y después calcula cuánto corregir en cada una. Si hay más errores de los que el código puede corregir, el lector lo detecta y vuelve a intentar con otra foto.
+
+Todo esto ocurre decenas de veces por segundo mientras la cámara del teléfono apunta al código. La experiencia de "apuntar y listo" esconde una cadena de procesamiento de imágenes, geometría proyectiva y álgebra de cuerpos finitos.
+
+#### 24.5 Qué significa para el diseño de la tarjeta
+
+Saber cómo lee el teléfono da criterios concretos para el diseño:
+
+- **Contraste alto y sin degradados detrás del QR.** La binarización por regiones tolera iluminación despareja, pero no un fondo que cambia de tono dentro del código. Por eso el recuadro blanco.
+- **La zona silenciosa es para encontrar las esquinas.** Sin margen claro, la secuencia 1:1:3:1:1 se confunde con el entorno y el lector no encuentra los patrones de búsqueda.
+- **Las esquinas no se tapan.** La corrección de errores protege los datos, no los patrones de búsqueda. Un logo encima del centro puede funcionar; uno encima de una esquina, no.
+- **Imprimir sobre papel mate.** Un brillo sobre el código produce una zona blanca que el lector interpreta como módulos claros: errores que la corrección M puede absorber hasta cierto punto.
+
+### 25. Del modelo al código
 
 | Concepto | Función | Archivo |
 |---|---|---|
@@ -422,7 +453,7 @@ r.tamano;               // 21
 QR.capacidadBytes(13, "M");   // 331
 ```
 
-### 25. Ejercicios
+### 26. Ejercicios
 
 1. ¿Cuántos módulos por lado tiene un QR versión 40, la más grande del estándar? (17 + 4v.)
 2. El contacto del ejemplo ocupa 298 bytes. ¿Cuántos caracteres de nota se podrían agregar antes de pasar de corrección M a L? ¿Y antes de no entrar en la versión 13?
@@ -432,7 +463,7 @@ QR.capacidadBytes(13, "M");   // 331
 6. Pedile a alguien que guarde tu tarjeta y, una semana después, que la busque. Anotá si la buscó por nombre o por imagen.
 7. Diseñá en papel cómo sería la tarjeta para un nicho concreto (por ejemplo, profesionales de la salud): ¿qué campos agregarías y cuáles sacarías?
 
-### 26. Glosario
+### 27. Glosario
 
 - **QR:** código bidimensional estandarizado como ISO/IEC 18004.
 - **Módulo:** cada cuadradito de un QR.
@@ -449,7 +480,7 @@ QR.capacidadBytes(13, "M");   // 331
 - **Externalidad de red:** que el valor de un producto dependa de cuántos lo usan.
 - **Codificación dual:** teoría según la cual lo que se guarda como palabra y como imagen se recuerda mejor.
 
-### 27. Conclusión
+### 28. Conclusión
 
 Una tarjeta de presentación con QR parece un objeto trivial, pero reúne tres historias. La primera es matemática: el QR de Masahiro Hara depende de los códigos de Reed y Solomon, que a su vez dependen del teorema de Shannon y de los cuerpos finitos de Galois, y la herramienta implementa todo eso desde cero, verificado con un lector independiente. La segunda es de estándares: vCard, UTF-8 e ISO 18004 hacen que un contacto viaje entre teléfonos de cualquier marca sin instalar nada, que es la única manera de esquivar el problema de la red que hunde a las apps de tarjetas. La tercera es psicológica: como mostraron Shepard, Standing, Paivio y la paradoja Baker-baker, recordamos imágenes y contextos mucho mejor que nombres, y una tarjeta guardada también como imagen conserva esas pistas.
 
@@ -467,8 +498,10 @@ La herramienta no compite con NameDrop ni con las apps comerciales; prueba una f
 - ISO/IEC. (2015). *ISO/IEC 18004:2015. Information technology — Automatic identification and data capture techniques — QR Code bar code symbology specification*. International Organization for Standardization.
 - Katz, M. L., & Shapiro, C. (1985). Network externalities, competition, and compatibility. *American Economic Review*, 75(3), 424–440.
 - Ley 25.326 de Protección de los Datos Personales. (2000). *Boletín Oficial de la República Argentina*, 2 de noviembre de 2000.
+- Massey, J. L. (1969). Shift-register synthesis and BCH decoding. *IEEE Transactions on Information Theory*, 15(1), 122–127. https://doi.org/10.1109/TIT.1969.1054260
 - McWeeny, K. H., Young, A. W., Hay, D. C., & Ellis, A. W. (1987). Putting names to faces. *British Journal of Psychology*, 78(2), 143–149. https://doi.org/10.1111/j.2044-8295.1987.tb02235.x
 - Nielsen, J., & Landauer, T. K. (1993). A mathematical model of the finding of usability problems. En *Proceedings of the INTERACT '93 and CHI '93 Conference on Human Factors in Computing Systems* (pp. 206–213). ACM. https://doi.org/10.1145/169059.169166
+- Otsu, N. (1979). A threshold selection method from gray-level histograms. *IEEE Transactions on Systems, Man, and Cybernetics*, 9(1), 62–66. https://doi.org/10.1109/TSMC.1979.4310076
 - Paivio, A. (1971). *Imagery and Verbal Processes*. Holt, Rinehart and Winston.
 - Perreault, S. (2011). *vCard Format Specification* (RFC 6350). Internet Engineering Task Force. https://doi.org/10.17487/RFC6350
 - Reed, I. S., & Solomon, G. (1960). Polynomial codes over certain finite fields. *Journal of the Society for Industrial and Applied Mathematics*, 8(2), 300–304. https://doi.org/10.1137/0108018
