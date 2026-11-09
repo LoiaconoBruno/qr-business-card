@@ -446,7 +446,7 @@ La zona silenciosa es obligatoria según el estándar: sin ella, el lector no di
 
 Una alternativa al QR es el **NFC** (comunicación de campo cercano), la tecnología de los pagos sin contacto: dos dispositivos a pocos centímetros intercambian datos por inducción magnética, según las normas ISO/IEC 14443 y 18092. Una tarjeta con un tag NFC puede guardar un enlace o una vCard que el teléfono lee al acercarlo.
 
-En iPhone, Apple lanzó en 2023 **NameDrop**, que intercambia contactos acercando dos iPhone, pero no ofrece una interfaz para que una página o una app de terceros lo use. Las apps nativas pueden leer y escribir tags con Core NFC; una página web abierta en Safari no tiene acceso al NFC. Lo que sí hace cualquier iPhone desde el XS es la **lectura en segundo plano**: al acercarlo a un tag que guarda un enlace, muestra un aviso para abrirlo, sin ninguna app abierta (Apple, s. f.). Los Android con NFC hacen lo mismo.
+En iPhone, Apple lanzó en 2023 **NameDrop**, que intercambia contactos acercando dos iPhone, pero no ofrece una interfaz para que una página o una app de terceros lo use. Las apps nativas pueden leer y escribir tags con Core NFC; una página web abierta en Safari no tiene acceso al NFC. Lo que sí hace cualquier iPhone desde el XS es la **lectura en segundo plano**: al acercarlo a un tag que guarda un enlace, muestra un aviso para abrirlo, sin ninguna app abierta (Apple, s. f.). En Android, con la pantalla desbloqueada, el sistema lee el tag y abre el enlace con la app que lo maneja (Android Developers, s. f.).
 
 En Android, Chrome implementa desde la versión 89 **Web NFC**, que deja a una página leer y escribir mensajes NDEF en un tag (Beaufort, s. f.; W3C Web NFC Community Group, s. f.). La especificación todavía es un borrador de un grupo comunitario del W3C, y ningún otro navegador la implementa.
 
@@ -626,6 +626,7 @@ La herramienta no compite con NameDrop ni con las apps comerciales; prueba una f
 
 ## Referencias
 
+- Android Developers. (s. f.). *NFC basics*. https://developer.android.com/develop/connectivity/nfc/nfc
 - Apple. (s. f.). *Adding support for background tag reading*. Core NFC, Apple Developer Documentation. https://developer.apple.com/documentation/corenfc/adding-support-for-background-tag-reading
 - Beaufort, F. (s. f.). *Interact with NFC devices on Chrome for Android*. Chrome for Developers. https://developer.chrome.com/docs/capabilities/nfc
 - Berlekamp, E. R. (1968). *Algebraic Coding Theory*. McGraw-Hill. https://archive.org/details/algebraiccodingt0000berl
