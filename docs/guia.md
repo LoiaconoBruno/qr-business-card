@@ -2,21 +2,34 @@
 
 ## Resumen
 
-Este documento acompaña a **QR Business Card**, una página para armar una tarjeta de presentación en dos formatos: un **contacto ordenado (.vcf)** y una **imagen de la tarjeta con un código QR** que, escaneado con la cámara de cualquier teléfono, agrega el contacto. No hace falta instalar nada, ni para darla ni para recibirla. Es el "prototipo sin app" de una idea sobre el intercambio digital de tarjetas: guardar el contacto ordenado y, además, una imagen para la galería, porque mucha gente recuerda **cómo se veía** una tarjeta, no el nombre de la persona.
+Este documento acompaña a **QR Business Card**, una página para armar una tarjeta de presentación y compartirla de cuatro maneras. La primera es un **contacto ordenado (.vcf)**. La segunda es una **imagen de la tarjeta con un código QR**, que la cámara de cualquier teléfono convierte en contacto. La tercera es un **enlace propio**, que abre la tarjeta con un botón «Agregar contacto». La cuarta es ese mismo enlace **grabado en un sticker NFC**, que se abre al acercar el teléfono. No hace falta instalar nada, ni para darla ni para recibirla, y no hay servidor: los datos viajan dentro del archivo, del QR o del enlace. Es el "prototipo sin app" de una idea sobre el intercambio digital de tarjetas: guardar el contacto ordenado y, además, una imagen para la galería, porque mucha gente recuerda **cómo se veía** una tarjeta, no el nombre de la persona.
 
-La primera parte es un paper de uso: campos, botones, un ejemplo resuelto con los números de la herramienta, cómo verificar los QR con un lector real y los límites. La segunda es una guía de la idea en tres frentes. El primero es matemático: cómo funciona un código QR por dentro, desde el código de barras de Woodland y Silver y el QR de Masahiro Hara en Denso Wave (1994) hasta los códigos correctores de errores de Shannon, Hamming, Reed y Solomon y la aritmética de los cuerpos finitos de Galois. El segundo es de estándares: vCard, MIME y UTF-8. El tercero es psicológico y económico: por qué recordamos caras y no nombres (Paivio, Standing, la paradoja Baker-baker de McWeeny y colaboradores) y por qué una app de tarjetas fracasa si el otro no la tiene (las externalidades de red de Katz y Shapiro). La herramienta implementa su propio codificador QR, sin dependencias, y esta guía explica cada pieza.
+La primera parte es un paper de uso. Recorre el flujo en tres pasos, las plantillas, las formas de compartir con sus límites y un ejemplo resuelto con los números de la herramienta. También explica cuánto ocupa el enlace en un tag NFC y cómo verificar los QR con un lector real. La segunda es una guía de la idea en tres frentes. El primero es matemático: cómo funciona un código QR por dentro, desde el código de barras de Woodland y Silver y el QR de Masahiro Hara en Denso Wave (1994) hasta los códigos correctores de errores de Shannon, Hamming, Reed y Solomon y la aritmética de los cuerpos finitos de Galois. El segundo es de estándares: vCard, MIME, UTF-8 y los registros NDEF de los tags NFC. El tercero es psicológico y económico: por qué recordamos caras y no nombres (Paivio, Standing, la paradoja Baker-baker de McWeeny y colaboradores) y por qué una app de tarjetas fracasa si el otro no la tiene (las externalidades de red de Katz y Shapiro). La herramienta implementa su propio codificador QR, sin dependencias, y esta guía explica cada pieza.
 
 ## Parte I. Paper de uso
 
 ### 1. Qué es la herramienta
 
-QR Business Card es una página estática sin dependencias que se abre desde la [demo en vivo](https://loiaconobruno.github.io/qr-business-card/) o con doble clic en `index.html`. Tiene tres zonas:
+QR Business Card es una página estática sin dependencias. Se abre desde la [demo en vivo](https://loiaconobruno.github.io/qr-business-card/) o con doble clic en `index.html`. Se usa en tres pasos, con la vista previa de la tarjeta siempre a la vista: arriba en el celular y a la derecha en pantallas anchas.
 
-1. **Datos:** nombre, apellido, profesión o cargo, empresa o consultorio, teléfono, email, web, dirección y una nota; un selector de estilo y los botones "Cargar ejemplo" y "Limpiar".
-2. **Vista previa:** la tarjeta dibujada, con el QR a la derecha y una línea que informa la versión del QR, el nivel de corrección y el tamaño del contacto en bytes.
-3. **Descargas:** "Descargar contacto (.vcf)", "Descargar imagen (PNG)" y, en los teléfonos que lo permiten, "Compartir".
+1. **Datos:** nombre, apellido, profesión o cargo, empresa o consultorio, teléfono, email, web, dirección y una nota, más una foto o un logo opcional. Tiene los botones "Cargar ejemplo" y "Limpiar".
+2. **Diseño:** cinco plantillas, cada una con una miniatura de tu tarjeta.
+3. **Compartir:** el botón «Compartir», que manda la imagen y el contacto juntos (en iPhone, iPad y Mac, la hoja de compartir incluye AirDrop). Además están las descargas, tu enlace y, en Chrome para Android, «Grabar en tag NFC».
 
-La lógica está en tres archivos sin acceso al DOM: `src/vcard.js` (el contacto), `src/qr.js` (el codificador QR) y `src/dibujo.js` (la imagen). Los tests se corren con `npm test` (Node 18 o más nuevo).
+Debajo de la vista previa, una línea informa la versión del QR, el nivel de corrección y el tamaño del contacto en bytes. Lo que escribís se guarda solo en tu navegador (en `localStorage`), para no perderlo al recargar.
+
+La página `contacto.html` es la que abre el enlace. Lee los datos de la parte del enlace que va después del `#`, dibuja la tarjeta y ofrece «Agregar contacto» y «Guardar la tarjeta (PNG)».
+
+La lógica está en archivos sin acceso al DOM:
+
+- `src/vcard.js`: el contacto.
+- `src/qr.js`: el codificador QR.
+- `src/plantillas.js`: los fondos.
+- `src/dibujo.js`: la imagen.
+- `src/enlace.js`: el enlace y su tamaño en un tag NFC.
+- `src/validar.js`: la validación.
+
+Los 17 tests se corren con `npm test`. El CI usa Node 22.
 
 ### 2. Instalación
 
@@ -30,28 +43,47 @@ Después se abre `index.html` con doble clic.
 
 ### 3. Los campos
 
-| Campo | En el contacto (.vcf) | En la imagen |
+| Campo | En el contacto (.vcf) | En la imagen | Validación |
+|---|---|---|---|
+| Nombre y apellido | Sí (N y FN) | Sí | Al menos uno de los dos; hasta 60 caracteres cada uno |
+| Profesión o cargo | Sí (TITLE) | Sí | Hasta 80 caracteres |
+| Empresa o consultorio | Sí (ORG) | Sí | Hasta 80 caracteres |
+| Teléfono | Sí (TEL) | Sí | Números, espacios, guiones, puntos, paréntesis y un + solo al principio; de 6 a 15 dígitos |
+| Email | Sí (EMAIL) | Sí | Con la forma nombre@dominio.com |
+| Web | Sí (URL) | Sí | Un dominio, con `https://` o sin él; si falta, se agrega |
+| Dirección | Sí (ADR) | Sí | Hasta 160 caracteres |
+| Nota | Sí (NOTE) | No | Hasta 200 caracteres |
+| Foto o logo | Sí (PHOTO), solo en el .vcf | Sí | PNG, JPG o WebP; se reduce a 320 px de lado |
+
+Los errores aparecen debajo de cada campo cuando salís de él, no mientras escribís, y explican qué hacer. No se puede pasar al paso 2 con un error: la página lleva el foco al primer campo con problemas. El límite de 15 dígitos es el largo máximo de un número internacional.
+
+El QR de la imagen contiene el contacto completo, nota incluida, pero sin la foto: una foto de 320 px ocupa miles de bytes, y el QR más grande que usa la herramienta admite 425. Así, la foto de la tarjeta guardada en la galería sirve para volver a importar el contacto. La imagen elegida se dibuja como círculo (foto) o como cuadrado redondeado (logo) arriba a la izquierda.
+
+### 4. Las plantillas
+
+| Plantilla | Fondo | Letra del nombre |
 |---|---|---|
-| Nombre y apellido | Sí (N y FN) | Sí |
-| Profesión o cargo | Sí (TITLE) | Sí |
-| Empresa o consultorio | Sí (ORG) | Sí |
-| Teléfono | Sí (TEL) | Sí |
-| Email | Sí (EMAIL) | Sí |
-| Web | Sí (URL) | Sí |
-| Dirección | Sí (ADR) | Sí |
-| Nota | Sí (NOTE) | No: solo en el contacto |
+| Aurora | Mesh pastel: cuatro manchas de color difusas, con grano muy sutil | Sans, extra negrita |
+| Grafito | Oscura, con un gradiente frío, grano y un brillo azulado | Sans |
+| Papel | Crema, con grano cálido y fibras finas | Serif |
+| Océano | Gradiente de azul profundo a verde agua, con ondas suaves | Sans |
+| Mínima | Blanca, con una franja de color a la izquierda | Sans |
 
-El QR de la imagen contiene el contacto completo, nota incluida. Así, la foto de la tarjeta guardada en la galería sirve para volver a importar el contacto.
+Los fondos se generan con código: gradientes radiales y lineales y un ruido con semilla fija (mulberry32), sin imágenes externas. Por eso la tarjeta se dibuja igual en cada equipo y en cada recarga. En cada plantilla, el texto, el texto secundario y el color de acento tienen un contraste de al menos 4,5:1 contra el color del fondo más desfavorable para el texto (el criterio AA de las WCAG 2.1). Un test lo verifica.
 
-### 4. Los estilos
+#### 4.1 El recuadro del QR
 
-Claro, Oscuro y Terracota. En los tres, el QR va en un recuadro blanco con cuatro módulos de margen (la "zona silenciosa" que exige el estándar), para que se lea igual sobre cualquier fondo.
+En todas las plantillas el QR se dibuja igual. Va negro sobre un recuadro blanco con esquinas redondeadas (radio de 20 px), borde gris visible (2 px) y una sombra suave. Tiene cuatro módulos de zona silenciosa y 10 px de holgura, y lleva debajo la etiqueta «Escaneame».
+
+La holgura existe porque una esquina redondeada se mete hacia adentro (1 − 1/√2) veces el radio, unos 6 px: así la curva nunca toca la zona silenciosa. El módulo se calcula para que el código con su margen ocupe hasta 400 px: 13 px por módulo en la versión 1 y 5 px en la versión 13. Un test comprueba, para las versiones 1 a 13, que el margen mide exactamente cuatro módulos, que la etiqueta no lo pisa y que el recuadro entra en la tarjeta.
 
 ### 5. Ejemplo resuelto
 
 1. **Cargar ejemplo.** Completa los datos de Ana Torres, odontóloga del Consultorio Torres, con teléfono, email, web, dirección y una nota de horarios. Los datos son inventados.
 2. **Vista previa.** Muestra la tarjeta con el QR a la derecha y, debajo: "QR versión 13, corrección M (298 bytes)". El contacto ocupa 298 bytes; la versión 13 con corrección M admite hasta 331, así que entra. Una versión 13 tiene 69 × 69 módulos.
-3. **Descargar contacto (.vcf).** Baja `ana-torres.vcf`, que se abre con la app de contactos de cualquier sistema. Su contenido es:
+3. **Siguiente: diseño.** Aparecen las cinco plantillas con la tarjeta de Ana en miniatura. Con Papel, el nombre pasa a letra serif sobre fondo crema, y el QR queda igual.
+4. **Siguiente: compartir.** El botón «Compartir» usa la Web Share API (W3C, 2023) y abre la hoja de compartir del sistema con la imagen y el contacto; en iPhone, iPad y Mac esa hoja incluye AirDrop. Antes de mostrar el botón, la página pregunta al navegador qué archivos acepta. Si acepta la imagen pero no el .vcf, comparte solo la imagen y avisa que el contacto se baja con su botón. Si no comparte archivos, el botón no aparece y quedan las descargas.
+5. **Descargar contacto (.vcf).** Baja `ana-torres.vcf`, que se abre con la app de contactos de cualquier sistema. Su contenido es:
 
 ```
 BEGIN:VCARD
@@ -68,10 +100,13 @@ NOTE:Turnos: lunes a viernes\, de 9 a 18
 END:VCARD
 ```
 
-Las comas dentro de la dirección y de la nota van escapadas con barra invertida, como pide el estándar.
+Las comas dentro de la dirección y de la nota van escapadas con barra invertida, como pide el estándar. Si hubiera una foto, iría en una línea `PHOTO;ENCODING=b;TYPE=JPEG:` con la imagen en base64, plegada en líneas de 75 bytes.
 
-4. **Descargar imagen (PNG).** Baja `ana-torres-tarjeta.png`, de 1050 × 600 píxeles: el tamaño de una tarjeta estándar de 3,5 × 2 pulgadas (88,9 × 50,8 mm) a 300 puntos por pulgada. Escaneando el QR con la cámara del teléfono aparece "Agregar contacto" con todos los datos.
-5. **Estilo y compartir.** Cambiando el estilo a Oscuro o Terracota, la tarjeta se redibuja. En los celulares que lo permiten aparece "Compartir", que manda la imagen y el contacto juntos por la hoja de compartir del sistema.
+6. **Descargar imagen (PNG).** Baja `ana-torres-tarjeta.png`, de 1050 × 600 píxeles: el tamaño de una tarjeta estándar de 3,5 × 2 pulgadas (88,9 × 50,8 mm) a 300 puntos por pulgada. Al escanear el QR con la cámara del teléfono aparece "Agregar contacto" con todos los datos.
+7. **Tu enlace.** Debajo del enlace se lee: "263 caracteres, comprimido. Grabado en un tag NFC ocupa 268 bytes." Lo acompañan tres etiquetas: "✗ NTAG213 (144 B)", "✓ NTAG215 (504 B)" y "✓ NTAG216 (888 B)". Con "Abrir", el enlace muestra la tarjeta de Ana en `contacto.html`, con «Agregar contacto».
+8. **Acercar el celular.** En Chrome para Android aparece «Grabar en tag NFC»: se toca, se acerca un sticker a la parte de atrás del teléfono y queda grabado el enlace. En los demás navegadores, la guía "Cómo grabar el enlace con NFC Tools" explica cómo hacerlo con una app.
+
+Las cifras del enlace corresponden a la demo publicada, porque el enlace incluye la dirección de la página. Abierta desde una copia local, la dirección cambia y el número también.
 
 ### 6. Capacidad: cuánto entra
 
@@ -87,9 +122,39 @@ La herramienta usa versiones de QR de la 1 a la 13 y elige la más chica en la q
 
 Un contacto de más de 425 bytes no entra: la página avisa y pide acortar la nota o la dirección. Como el texto va en UTF-8, cada letra con tilde ocupa dos bytes.
 
+#### 6.1 El enlace y su tamaño en un tag NFC
+
+El enlace es la dirección de `contacto.html` seguida de `#` y un fragmento que lleva los datos. El fragmento empieza con un carácter de versión:
+
+- `1`: los datos en JSON, pasados a base64url, la variante de base64 que solo usa letras, números, `-` y `_` y por eso no necesita escapes en una URL (RFC 4648).
+- `2`: el mismo JSON comprimido con DEFLATE (RFC 1951) mediante la API `CompressionStream` del navegador (WHATWG, s. f.), y después pasado a base64url.
+
+El JSON es una lista sin nombres de campo, `["papel","Ana","Torres",…]`, y los campos vacíos del final se omiten. La página prueba las dos versiones y se queda con la más corta.
+
+La parte de una URL que va después del `#` la usa solo el navegador: no viaja al servidor cuando se pide la página (RFC 3986, sección 3.5). Por eso GitHub Pages, que sirve `contacto.html`, nunca recibe los datos. Pero el enlace no está cifrado: cualquiera que lo tenga puede leerlos, igual que con una tarjeta de papel.
+
+Un tag NFC guarda el enlace como un mensaje NDEF con un registro de tipo URI. Los bytes que ocupa salen de sumar sus partes:
+
+- **Contenido del registro:** un byte de prefijo más el resto de la URL en UTF-8. El prefijo abrevia el comienzo: `https://` se guarda como el código 0x04, y `https://www.` como 0x02.
+- **Registro:** una cabecera de 1 byte, 1 byte para el largo del tipo, el largo del contenido (1 byte si el contenido mide hasta 255 bytes, si no 4), el tipo `U` (1 byte) y el contenido.
+- **Envoltorio TLV:** 1 byte de etiqueta (0x03), el largo del registro (1 byte si mide menos de 255, si no 3), el registro y un byte final de cierre (0xFE).
+
+Para el enlace del ejemplo, de 263 caracteres, el resto después de `https://` mide 255 bytes. El contenido mide entonces 256 bytes y pasa a necesitar 4 bytes de largo: el registro mide 1 + 1 + 4 + 1 + 256 = 263 bytes. El TLV mide 1 + 3 + 263 = 267, y con el byte de cierre quedan **268 bytes**.
+
+Las memorias de usuario de los tags NTAG de NXP son de 144 bytes (NTAG213), 504 (NTAG215) y 888 (NTAG216). Los tests verifican la cuenta exacta para un enlace corto y uno largo, y que el enlace del ejemplo entra en un NTAG216.
+
+| Caso | Contacto (.vcf) | Enlace | En el tag | NTAG213 | NTAG215 | NTAG216 |
+|---|---|---|---|---|---|---|
+| Solo nombre y teléfono | 88 bytes | 115 caracteres | 115 bytes | Entra | Entra | Entra |
+| Con tildes y ñ, sin teléfono ni web | 238 bytes | 240 caracteres | 240 bytes | No | Entra | Entra |
+| Ejemplo de Ana Torres | 298 bytes | 263 caracteres | 268 bytes | No | Entra | Entra |
+| Todos los campos al largo máximo, con letras al azar | No entra en el QR | 938 a 944 caracteres | 943 a 949 bytes | No | No | No |
+
+El último caso se midió con 20 conjuntos de letras al azar que pasan la validación. Aunque se comprima, un texto al azar casi no se achica, y el enlace no entra ni en un NTAG216. La página lo muestra con las etiquetas de cada tag; la solución es acortar la nota o la dirección. Los datos reales, con palabras y números repetidos, se comprimen mucho mejor.
+
 ### 7. Verificar los QR con un lector real
 
-Los tests no pueden leer imágenes, así que el repositorio incluye una verificación aparte, para macOS, que genera PNG con el codificador y los decodifica con el detector de QR del sistema (CoreImage):
+Los tests no pueden leer imágenes, así que el repositorio incluye una verificación aparte, para macOS. Genera PNG con el codificador y los decodifica con el detector de QR del sistema (CoreImage):
 
 ```bash
 node tools/verificar-qr/generar.js src/qr.js /tmp/qr
@@ -107,45 +172,73 @@ swiftc -O tools/verificar-qr/decodificar.swift -o /tmp/decodificar-qr
 node tools/verificar-qr/comparar.js /tmp/qr/esperado.json /tmp/qr/resultado.tsv
 ```
 
-Prueba las versiones 1 a 13 en M y L al máximo de su capacidad, las 8 máscaras, texto con tildes y la tarjeta de ejemplo: 36 de 36 se decodifican correctamente. Es la prueba más fuerte de que el codificador cumple el estándar: un lector independiente, escrito por otra empresa, lee lo que el codificador escribe.
+Prueba las versiones 1 a 13 en M y L al máximo de su capacidad, las 8 máscaras, texto con tildes y la tarjeta de ejemplo: **36 de 36** se decodifican correctamente. Es la prueba más fuerte de que el codificador cumple el estándar: un lector independiente, escrito por otra empresa, lee lo que el codificador escribe.
+
+La segunda verificación usa la tarjeta entera, con fondo, recuadro y texto, y no solo el código. Dibuja tres contactos (el ejemplo, uno corto y uno con tildes y ñ) en las cinco plantillas con Chrome sin ventana y decodifica cada captura:
+
+```bash
+node tools/verificar-qr/tarjetas.js /tmp/qr-tarjetas
+```
+
+```bash
+/tmp/decodificar-qr /tmp/qr-tarjetas/*.png > /tmp/qr-tarjetas/resultado.tsv
+```
+
+```bash
+node tools/verificar-qr/comparar.js /tmp/qr-tarjetas/esperado.json /tmp/qr-tarjetas/resultado.tsv
+```
+
+Resultado: **15 de 15**. Esto comprueba que el recuadro y la zona silenciosa aíslan el código del fondo en todas las plantillas, incluso en las oscuras.
 
 ### 8. Cómo leer los resultados
 
 - **Versión:** cuanto más alta, más módulos y más denso el QR. Una versión 13 impresa muy chica cuesta escanearla.
 - **Corrección M:** el QR puede perder hasta un 15 % de sus datos (por una mancha, un pliegue, un logo encima) y seguir leyéndose. Con L, hasta un 7 %.
 - **Bytes:** el tamaño del contacto codificado. Si está cerca del límite de la versión 13, conviene acortar la nota.
+- **Etiquetas de los tags:** en qué stickers NFC entra tu enlace. Si no entra en ninguno, acortá la nota o la dirección.
 
 #### 8.1 Preguntas frecuentes
 
-**¿Por qué la nota no aparece en la imagen?** Para que la tarjeta visual sea limpia. La nota (horarios, aclaraciones) va solo en el contacto, y por lo tanto en el QR.
+**¿Por qué la nota no aparece en la imagen?** Para que la tarjeta visual sea limpia. La nota (horarios, aclaraciones) va solo en el contacto, y por lo tanto en el QR y en el enlace.
 
-**¿Mis datos se mandan a algún servidor?** No. Todo se genera en el navegador. La página no tiene servidor ni analítica.
+**¿Mis datos se mandan a algún servidor?** No. Todo se genera en el navegador, y la página no tiene servidor ni analítica. El enlace tampoco los manda: van después del `#`, y esa parte no viaja al servidor.
 
-**¿Por qué no hay logo ni foto?** Es una limitación declarada. Un logo encima del QR es posible gracias a la corrección de errores, pero reduce el margen frente a manchas; una foto agrandaría el contacto mucho más allá de lo que entra en un QR.
+**¿Por qué la foto no va en el QR ni en el enlace?** Porque no entra. Una foto de 320 px ocupa miles de bytes, el QR más grande que usa la herramienta admite 425 y un NTAG216 guarda 888. La foto va en la imagen y en el .vcf.
 
-**¿A qué tamaño hay que imprimir el QR?** Una regla práctica de la industria es que el lado del QR sea al menos una décima parte de la distancia de lectura, y que cada módulo no sea menor que unos 0,3 mm. Un QR versión 13 (69 módulos más 8 de margen) necesita entonces unos 2,3 cm de lado como mínimo; en la tarjeta de 1050 × 600 píxeles a 300 ppp, el QR ocupa bastante más que eso.
+**¿Puedo acercar mi iPhone al de otra persona, como con NameDrop?** No desde una página web: NameDrop es una función del sistema, y ni las páginas ni las apps de terceros pueden usarla. Lo más parecido que sí funciona es un sticker NFC con tu enlace: cualquier iPhone desde el XS y los Android con NFC lo leen al acercarlo, sin instalar nada (ver la sección 19).
+
+**¿AirDrop manda también el contacto?** Si el navegador acepta los dos archivos, la hoja de compartir lleva la imagen y el .vcf juntos. Qué hace con ellos el equipo que los recibe depende de su sistema.
+
+**¿A qué tamaño hay que imprimir el QR?** Una regla práctica de la industria es que el lado del QR sea al menos una décima parte de la distancia de lectura, y que cada módulo no sea menor que unos 0,3 mm. Un QR versión 13 (69 módulos más 8 de margen) necesita entonces unos 2,3 cm de lado como mínimo. En la tarjeta de 1050 × 600 píxeles a 300 ppp, el QR ocupa bastante más que eso.
 
 **¿Funciona con iPhone y Android?** Sí. Las cámaras de iOS (desde la versión 11) y de la mayoría de los Android reconocen QR con vCard sin apps adicionales.
 
-**¿Por qué el QR no apunta a una página con mis datos, que sería más chico?** Porque así la tarjeta funciona sin internet, sin servidor y para siempre, y nadie registra quién la escaneó. El costo es que el QR es más denso y que, si cambian los datos, hay que hacer una tarjeta nueva. La sección 15.6 discute el equilibrio.
+**¿Por qué el QR lleva el contacto y no el enlace, si ocupan casi lo mismo?** Porque así la tarjeta impresa funciona sin internet, sin servidor y para siempre, aunque la demo deje de existir. El enlace es para los canales donde un QR no sirve: un mensaje, un correo o un sticker NFC. El costo del QR con el contacto adentro es que, si cambian los datos, hay que hacer una tarjeta nueva. La sección 15.6 discute el equilibrio.
 
 #### 8.2 Recorrido guiado
 
 1. **Empezá vacío.** Apretá "Limpiar" y escribí solo tu nombre. Mirá la línea debajo de la vista previa: una versión chica, pocos bytes.
 2. **Agregá campos de a uno.** Teléfono, email, web. Mirá cómo sube la versión del QR y cómo se vuelve más denso el dibujo.
-3. **Escribí una nota larga.** Mirá en qué momento la corrección pasa de M a L, y en qué momento la página avisa que no entra.
-4. **Probá tildes.** Escribí la misma nota con y sin tildes y compará los bytes: cada letra con tilde suma uno.
-5. **Cambiá el estilo.** Fijate que el QR sigue negro sobre blanco en los tres.
-6. **Descargá la imagen y escaneala desde otra pantalla.** Después, guardala en la galería del teléfono y probá si la galería reconoce el QR dentro de la foto.
-7. **Abrí el .vcf** con un editor de texto y buscá las comas escapadas.
+3. **Escribí un teléfono con letras** y salí del campo. Leé el mensaje de error y probá pasar al paso 2: la página te devuelve al campo.
+4. **Escribí una nota larga.** Mirá en qué momento la corrección pasa de M a L, y en qué momento la página avisa que no entra.
+5. **Probá tildes.** Escribí la misma nota con y sin tildes y compará los bytes: cada letra con tilde suma uno.
+6. **Recorré las plantillas.** Fijate que el QR sigue negro sobre blanco, con su recuadro y «Escaneame», en las cinco.
+7. **Mirá el enlace en el paso 3.** Anotá cuántos bytes ocupa en un tag, volvé al paso 1, alargá la nota y fijate cuándo deja de entrar en un NTAG215.
+8. **Descargá la imagen y escaneala desde otra pantalla.** Después, guardala en la galería del teléfono y probá si la galería reconoce el QR dentro de la foto.
+9. **Abrí el .vcf** con un editor de texto y buscá las comas escapadas.
 
 ### 9. Limitaciones
 
-- No escribe tags NFC. Web NFC solo existe en Chrome para Android; en iPhone, las apps de terceros no pueden usar el "acercar los teléfonos" de NameDrop.
-- El QR llega hasta la versión 13: un contacto de más de 425 bytes no entra.
-- Con todos los campos completos, el QR es denso (versión 13): impreso muy chico puede costar escanearlo.
-- No hay foto ni logo en la tarjeta.
-- Apple ya resuelve parte de esto con NameDrop, y hay apps establecidas (Popl, Blinq, HiHello). El doble guardado es una función, no un producto.
+- **NameDrop no.** Ninguna página web ni app de terceros puede usar el "acercar los teléfonos" de Apple.
+- **Web NFC solo en Chrome para Android** (desde la versión 89). En iPhone, una página web no puede leer ni escribir NFC; el sticker se graba con una app como NFC Tools.
+- **El enlace no está cifrado.** Quien lo tiene, ve los datos. Si cambiás tus datos, el enlace cambia y hay que volver a grabar el sticker.
+- **Un enlace con muchos datos no entra en ningún tag**, aunque esté comprimido. La página muestra en qué tags entra.
+- **La foto o el logo** van en la imagen y en el .vcf, pero no en el QR ni en el enlace.
+- **Compartir archivos depende del navegador.** Cada navegador decide qué tipos de archivo deja compartir. Si no acepta el .vcf, la página comparte solo la imagen; si no comparte archivos, quedan las descargas.
+- **Sin prueba en equipos de Apple ni con un tag real.** La hoja de compartir con AirDrop y «Agregar contacto» en iPhone no se probaron en Safari ni en un iPhone: el equipo de desarrollo no tenía el simulador de iOS. La grabación con Web NFC tampoco se probó con un sticker.
+- **El QR llega hasta la versión 13:** un contacto de más de 425 bytes no entra.
+- **Con todos los campos completos, el QR es denso** (versión 13): impreso muy chico, puede costar escanearlo.
+- **No es un producto.** Apple ya resuelve parte de esto con NameDrop, y hay apps establecidas (Popl, Blinq, HiHello). El doble guardado es una función, no un producto.
 
 ## Parte II. Guía de la idea
 
@@ -258,6 +351,8 @@ Un QR no es un enlace ni un contacto: es una secuencia de bytes. Lo que el telé
 - **Costo: no se puede actualizar.** Si cambia el teléfono, hay que hacer una tarjeta nueva. Un QR con un enlace podría apuntar a una página que se actualiza.
 - **Costo: el tamaño.** Un enlace corto entra en un QR versión 2 o 3, mucho más fácil de leer impreso chico que una versión 13.
 
+La herramienta suma un enlace propio (sección 6.1), pero no lo pone en el QR. Ese enlace lleva los datos adentro, así que no es corto: el del ejemplo tiene 263 caracteres, casi lo mismo que la vCard. Tampoco se puede actualizar, porque si cambian los datos cambia el enlace. Ponerlo en el QR solo agregaría la dependencia de un servidor. Su lugar está en otros canales: un mensaje, un correo o un sticker NFC.
+
 El mismo mecanismo explica un riesgo que creció con la popularidad de los QR: el **quishing**, o *phishing* por QR. Un QR pegado encima del original en un parquímetro o un menú puede llevar a un sitio falso que pide datos de pago. Como el contenido de un QR no se puede leer a simple vista, los organismos de ciberseguridad recomiendan mirar siempre la dirección que el teléfono muestra antes de abrirla. Un QR que contiene directamente una vCard tiene un riesgo mucho menor, porque no abre ningún sitio: solo propone agregar un contacto, que el usuario puede revisar antes de guardar.
 
 ### 16. Corregir errores: Shannon, Hamming, Reed y Solomon
@@ -343,15 +438,30 @@ Por compatibilidad. La 3.0 la leen todos los sistemas de contactos en uso: iOS, 
 
 ### 18. La imagen
 
-La función de dibujo (`src/dibujo.js`) arma la tarjeta en un `<canvas>` de 1050 × 600 píxeles: el tamaño de una tarjeta de 3,5 × 2 pulgadas a 300 píxeles por pulgada, la resolución estándar de impresión. A la izquierda van el nombre, la profesión, la empresa y los datos de contacto; a la derecha, el QR en su recuadro blanco con cuatro módulos de zona silenciosa.
+La función de dibujo (`src/dibujo.js`) arma la tarjeta en un `<canvas>` de 1050 × 600 píxeles: el tamaño de una tarjeta de 3,5 × 2 pulgadas a 300 píxeles por pulgada, la resolución estándar de impresión. Arriba a la izquierda va la foto o el logo, si hay uno; después, el nombre, la profesión, la empresa y los datos de contacto. Los textos largos achican la letra para entrar (el nombre baja de 58 a 38 píxeles) y, si aun así no entran, se cortan con puntos suspensivos. A la derecha va el QR en su recuadro blanco, con cuatro módulos de zona silenciosa y la etiqueta «Escaneame» (sección 4.1).
 
-La zona silenciosa es obligatoria según el estándar: sin ella, el lector no distingue dónde termina el código y empieza el fondo. Por eso, aunque el estilo sea oscuro o terracota, el QR siempre se dibuja negro sobre blanco. Los lectores modernos pueden leer QR invertidos (blanco sobre negro), pero no todos, y la herramienta prioriza que funcione en cualquier teléfono.
+La zona silenciosa es obligatoria según el estándar: sin ella, el lector no distingue dónde termina el código y empieza el fondo. Por eso, aunque la plantilla sea oscura, como Grafito u Océano, el QR siempre se dibuja negro sobre blanco. Los lectores modernos pueden leer QR invertidos (blanco sobre negro), pero no todos, y la herramienta prioriza que funcione en cualquier teléfono.
 
-### 19. NFC y NameDrop: lo que la herramienta no hace
+### 19. NFC y NameDrop: lo que se puede hacer desde una página web
 
 Una alternativa al QR es el **NFC** (comunicación de campo cercano), la tecnología de los pagos sin contacto: dos dispositivos a pocos centímetros intercambian datos por inducción magnética, según las normas ISO/IEC 14443 y 18092. Una tarjeta con un tag NFC puede guardar un enlace o una vCard que el teléfono lee al acercarlo.
 
-La herramienta no escribe tags NFC porque la API web que lo permite (Web NFC) solo existe en Chrome para Android. En iPhone, Apple lanzó en 2023 **NameDrop**, que intercambia contactos acercando dos iPhone, pero las apps de terceros no pueden usarlo. Grabar un tag NFC con el enlace a la tarjeta publicada es uno de los próximos pasos del proyecto, con un tag comprado y una app de escritura.
+En iPhone, Apple lanzó en 2023 **NameDrop**, que intercambia contactos acercando dos iPhone, pero no ofrece una interfaz para que una página o una app de terceros lo use. Las apps nativas pueden leer y escribir tags con Core NFC; una página web abierta en Safari no tiene acceso al NFC. Lo que sí hace cualquier iPhone desde el XS es la **lectura en segundo plano**: al acercarlo a un tag que guarda un enlace, muestra un aviso para abrirlo, sin ninguna app abierta (Apple, s. f.). Los Android con NFC hacen lo mismo.
+
+En Android, Chrome implementa desde la versión 89 **Web NFC**, que deja a una página leer y escribir mensajes NDEF en un tag (Beaufort, s. f.; W3C Web NFC Community Group, s. f.). La especificación todavía es un borrador de un grupo comunitario del W3C, y ningún otro navegador la implementa.
+
+Con esas piezas, la herramienta hace lo que sí funciona:
+
+1. **Un enlace propio** con los datos en el fragmento, que abre `contacto.html` con la tarjeta y «Agregar contacto» (sección 6.1). No necesita servidor ni base de datos.
+2. **«Grabar en tag NFC»**, visible solo donde existe `NDEFReader`, es decir en Chrome para Android. Escribe un registro de tipo URL con el enlace:
+
+```js
+await new NDEFReader().write({ records: [{ recordType: "url", data: enlace }] });
+```
+
+3. **Una guía corta para grabar el enlace con NFC Tools**, una app gratuita de wakdev para iPhone y Android: Escribir → Agregar un registro → URL/URI, pegar el enlace, Escribir y acercar el sticker.
+
+Los stickers y tarjetas NFC más comunes usan los chips NTAG213, NTAG215 y NTAG216 de NXP, del tipo 2 del NFC Forum, con 144, 504 y 888 bytes de memoria de usuario (NXP Semiconductors, s. f.). La página calcula cuántos bytes ocupa el enlace grabado y muestra en cuáles entra. El enlace del ejemplo ocupa 268 bytes, así que necesita un NTAG215 o un NTAG216.
 
 ### 20. Privacidad: qué poner en una tarjeta
 
@@ -372,7 +482,7 @@ Un punto a favor de la herramienta, desde la privacidad, es que no tiene servido
 
 La imagen de la tarjeta tiene que cumplir dos funciones: ser legible por personas y por máquinas. Para las máquinas, la regla es simple (QR negro sobre blanco con zona silenciosa). Para las personas, hay algunas pautas que vienen del diseño gráfico y de la accesibilidad.
 
-**Contraste.** Las Pautas de Accesibilidad para el Contenido Web (WCAG 2.1, del W3C, 2018) recomiendan una relación de contraste de al menos 4,5:1 entre el texto y el fondo para texto de tamaño normal. Los tres estilos de la herramienta (claro, oscuro y terracota) están pensados con texto oscuro sobre fondo claro o al revés; un estilo nuevo debería verificar ese contraste.
+**Contraste.** Las Pautas de Accesibilidad para el Contenido Web (WCAG 2.1, del W3C, 2018) recomiendan una relación de contraste de al menos 4,5:1 entre el texto y el fondo para texto de tamaño normal. Cada una de las cinco plantillas declara el color de su fondo más desfavorable para el texto, y un test verifica contra él el contraste del texto, del texto secundario y del color de acento. Una plantilla nueva que no llegue a 4,5:1 hace fallar los tests.
 
 **Jerarquía.** Robert Bringhurst, en *The Elements of Typographic Style* (1992), insiste en que la tipografía debe hacer visible la estructura del contenido. En una tarjeta, eso quiere decir que el nombre es lo más grande, la profesión lo segundo, y los datos de contacto lo más chico. Es también lo que sugiere la paradoja Baker-baker: la profesión, que es lo que se recuerda, merece un lugar destacado al lado del nombre.
 
@@ -384,7 +494,7 @@ La imagen de la tarjeta tiene que cumplir dos funciones: ser legible por persona
 
 El README reconoce que el problema ya está parcialmente resuelto: NameDrop para usuarios de iPhone, y apps establecidas como Popl, Blinq o HiHello, que combinan tarjetas digitales, QR, NFC y gestión de contactos. El aporte de la herramienta, el doble guardado (contacto más imagen con QR), es una **función**, no un producto.
 
-Esa honestidad es útil para decidir el próximo paso. La teoría de la difusión de innovaciones de Everett Rogers (*Diffusion of Innovations*, 1962) identifica cinco atributos que favorecen la adopción: ventaja relativa, compatibilidad, baja complejidad, posibilidad de prueba y visibilidad. La herramienta es fuerte en compatibilidad (estándares abiertos), complejidad (no hay que instalar nada) y prueba (se usa en un minuto). Su ventaja relativa frente a NameDrop o Popl depende del nicho. El proyecto propone explorar profesionales de la salud o congresos, donde la tarjeta impresa todavía es común y el contacto se da a personas con teléfonos de todo tipo.
+Esa honestidad es útil para decidir el próximo paso. La teoría de la difusión de innovaciones de Everett Rogers (*Diffusion of Innovations*, 1962; quinta edición, 2003) identifica cinco atributos que favorecen la adopción: ventaja relativa, compatibilidad, baja complejidad, posibilidad de prueba y visibilidad. La herramienta es fuerte en compatibilidad (estándares abiertos), complejidad (no hay que instalar nada) y prueba (se usa en un minuto). Su ventaja relativa frente a NameDrop o Popl depende del nicho. El proyecto propone explorar profesionales de la salud o congresos, donde la tarjeta impresa todavía es común y el contacto se da a personas con teléfonos de todo tipo.
 
 ### 23. Probar con personas
 
@@ -441,9 +551,26 @@ Saber cómo lee el teléfono da criterios concretos para el diseño:
 | Polinomio generador y resto | `divisor`, `resto` | `src/qr.js` |
 | Palabras con corrección y entrelazado | `codewords` | `src/qr.js` |
 | Codificador completo (versión, máscara, matriz) | `codificar` | `src/qr.js` |
-| Dibujo de la tarjeta | — | `src/dibujo.js` |
+| Foto en la vCard | `generar(datos, { foto })` | `src/vcard.js` |
+| Plantillas, grano y manchas de color | `LISTA`, `porId`, `grano`, `mancha` | `src/plantillas.js` |
+| Recuadro del QR y zona silenciosa | `disposicion` | `src/dibujo.js` |
+| Dibujo de la tarjeta | `dibujar` | `src/dibujo.js` |
+| Enlace: serializar, comprimir y leer | `serializar`, `codificar`, `decodificar` | `src/enlace.js` |
+| Bytes NDEF y tags en los que entra | `bytesNdef`, `tags` | `src/enlace.js` |
+| Validación de los campos | `validar`, `normalizarWeb` | `src/validar.js` |
+| Página que abre el enlace | — | `src/contacto.js` |
+| Compartir, descargas y Web NFC | — | `src/app.js` |
 
 Los tests verifican: el ejemplo clásico de Reed-Solomon "HELLO WORLD" 1-M; que la tabla de bloques es consistente con el total de palabras; que se elige la versión más chica en la que entra el texto; que la matriz tiene los tres patrones de búsqueda; los campos, escapes y fin de línea de la vCard; el plegado a 75 bytes y su recuperación; que lo generado se puede volver a leer igual, y que la tarjeta de ejemplo entra en un QR.
+
+Los tests de las funciones nuevas verifican:
+
+- que hay al menos cuatro plantillas y que todas pasan el contraste AA;
+- que el recuadro deja cuatro módulos de silencio en las versiones 1 a 13, con módulos de al menos 5 px;
+- que el enlace va y vuelve igual, con y sin compresión, usa solo caracteres seguros y rechaza datos rotos;
+- la cuenta exacta de bytes NDEF, y que el enlace del ejemplo entra en un NTAG216;
+- la validación de cada campo;
+- que la foto va en el .vcf, plegada a 75 bytes, y no en el QR.
 
 ```js
 const QR = require("./src/qr.js");
@@ -451,6 +578,9 @@ const r = QR.codificar("HELLO WORLD");
 r.version;              // 1
 r.tamano;               // 21
 QR.capacidadBytes(13, "M");   // 331
+
+const Enlace = require("./src/enlace.js");
+Enlace.bytesNdef("https://a.b/c");   // 13
 ```
 
 ### 26. Ejercicios
@@ -461,7 +591,8 @@ QR.capacidadBytes(13, "M");   // 331
 4. Escribí a mano la línea ADR de la vCard para una dirección con punto y coma. ¿Qué hay que escapar?
 5. Imprimí la tarjeta de ejemplo en tamaño real y probá a qué distancia la lee tu teléfono. Después tapá con un papel distintas partes del QR: ¿cuánto se puede tapar antes de que deje de leerse?
 6. Pedile a alguien que guarde tu tarjeta y, una semana después, que la busque. Anotá si la buscó por nombre o por imagen.
-7. Diseñá en papel cómo sería la tarjeta para un nicho concreto (por ejemplo, profesionales de la salud): ¿qué campos agregarías y cuáles sacarías?
+7. Con la cuenta de la sección 6.1, calculá cuántos bytes ocupa en un tag un enlace de 250 caracteres que empieza con `https://`, y uno de 263. ¿Por qué 13 caracteres más suman 18 bytes? (Respuestas: 250 y 268.)
+8. Diseñá en papel cómo sería la tarjeta para un nicho concreto (por ejemplo, profesionales de la salud): ¿qué campos agregarías y cuáles sacarías?
 
 ### 27. Glosario
 
@@ -478,38 +609,53 @@ QR.capacidadBytes(13, "M");   // 331
 - **CRLF:** fin de línea con retorno de carro y salto de línea.
 - **UTF-8:** codificación de caracteres Unicode de longitud variable.
 - **Externalidad de red:** que el valor de un producto dependa de cuántos lo usan.
+- **NFC:** comunicación de campo cercano; intercambio de datos por inducción a pocos centímetros.
+- **NDEF:** formato de mensajes del NFC Forum; un enlace se guarda como un registro de tipo URI.
+- **NTAG213, NTAG215, NTAG216:** chips NFC de NXP con 144, 504 y 888 bytes de memoria de usuario.
+- **Fragmento:** la parte de una URL después del `#`; la usa el navegador y no viaja al servidor.
+- **base64url:** variante de base64 que solo usa caracteres seguros en una URL.
+- **Web Share API:** interfaz del navegador que abre la hoja de compartir del sistema.
+- **Web NFC:** interfaz del navegador para leer y escribir tags NFC; solo existe en Chrome para Android.
 - **Codificación dual:** teoría según la cual lo que se guarda como palabra y como imagen se recuerda mejor.
 
 ### 28. Conclusión
 
 Una tarjeta de presentación con QR parece un objeto trivial, pero reúne tres historias. La primera es matemática: el QR de Masahiro Hara depende de los códigos de Reed y Solomon, que a su vez dependen del teorema de Shannon y de los cuerpos finitos de Galois, y la herramienta implementa todo eso desde cero, verificado con un lector independiente. La segunda es de estándares: vCard, UTF-8 e ISO 18004 hacen que un contacto viaje entre teléfonos de cualquier marca sin instalar nada, que es la única manera de esquivar el problema de la red que hunde a las apps de tarjetas. La tercera es psicológica: como mostraron Shepard, Standing, Paivio y la paradoja Baker-baker, recordamos imágenes y contextos mucho mejor que nombres, y una tarjeta guardada también como imagen conserva esas pistas.
 
-La herramienta no compite con NameDrop ni con las apps comerciales; prueba una función, el doble guardado. Los próximos pasos son publicarla con un tag NFC, probarla con diez personas y elegir un nicho donde esa función marque la diferencia.
+La herramienta no compite con NameDrop ni con las apps comerciales; prueba una función, el doble guardado, y la acompaña con lo que una página web sí puede hacer para "acercar el celular": un enlace sin servidor que entra en un sticker NFC. Los próximos pasos son grabarlo en tags reales, probarla con diez personas en teléfonos de las dos marcas y elegir un nicho donde esa función marque la diferencia.
 
 ## Referencias
 
-- Berlekamp, E. R. (1968). *Algebraic Coding Theory*. McGraw-Hill.
+- Apple. (s. f.). *Adding support for background tag reading*. Core NFC, Apple Developer Documentation. https://developer.apple.com/documentation/corenfc/adding-support-for-background-tag-reading
+- Beaufort, F. (s. f.). *Interact with NFC devices on Chrome for Android*. Chrome for Developers. https://developer.chrome.com/docs/capabilities/nfc
+- Berlekamp, E. R. (1968). *Algebraic Coding Theory*. McGraw-Hill. https://archive.org/details/algebraiccodingt0000berl
+- Berners-Lee, T., Fielding, R., & Masinter, L. (2005). *Uniform Resource Identifier (URI): Generic Syntax* (RFC 3986). Internet Engineering Task Force. https://doi.org/10.17487/RFC3986
 - Bose, R. C., & Ray-Chaudhuri, D. K. (1960). On a class of error correcting binary group codes. *Information and Control*, 3(1), 68–79. https://doi.org/10.1016/S0019-9958(60)90287-4
-- Bringhurst, R. (1992). *The Elements of Typographic Style*. Hartley & Marks. ISBN 978-0-88179-110-5.
+- Bringhurst, R. (1992). *The Elements of Typographic Style*. Hartley & Marks. https://archive.org/details/elementsoftypogr0000brin_z4a6
 - Dawson, F., & Howes, T. (1998). *vCard MIME Directory Profile* (RFC 2426). Internet Engineering Task Force. https://doi.org/10.17487/RFC2426
+- Deutsch, P. (1996). *DEFLATE Compressed Data Format Specification version 1.3* (RFC 1951). Internet Engineering Task Force. https://doi.org/10.17487/RFC1951
 - Hamming, R. W. (1950). Error detecting and error correcting codes. *Bell System Technical Journal*, 29(2), 147–160. https://doi.org/10.1002/j.1538-7305.1950.tb00463.x
-- Hocquenghem, A. (1959). Codes correcteurs d'erreurs. *Chiffres*, 2, 147–156.
 - Howes, T., Smith, M., & Dawson, F. (1998). *A MIME Content-Type for Directory Information* (RFC 2425). Internet Engineering Task Force. https://doi.org/10.17487/RFC2425
-- ISO/IEC. (2015). *ISO/IEC 18004:2015. Information technology — Automatic identification and data capture techniques — QR Code bar code symbology specification*. International Organization for Standardization.
-- Katz, M. L., & Shapiro, C. (1985). Network externalities, competition, and compatibility. *American Economic Review*, 75(3), 424–440.
-- Ley 25.326 de Protección de los Datos Personales. (2000). *Boletín Oficial de la República Argentina*, 2 de noviembre de 2000.
+- ISO/IEC. (2015). *ISO/IEC 18004:2015. Information technology — Automatic identification and data capture techniques — QR Code bar code symbology specification*. International Organization for Standardization. https://www.iso.org/standard/62021.html
+- Josefsson, S. (2006). *The Base16, Base32, and Base64 Data Encodings* (RFC 4648). Internet Engineering Task Force. https://doi.org/10.17487/RFC4648
+- Katz, M. L., & Shapiro, C. (1985). Network externalities, competition, and compatibility. *American Economic Review*, 75(3), 424–440. https://www.jstor.org/stable/1814809
+- Ley 25.326 de Protección de los Datos Personales. (2000). *Boletín Oficial de la República Argentina*, 2 de noviembre de 2000. https://servicios.infoleg.gob.ar/infolegInternet/anexos/60000-64999/64790/norma.htm
 - Massey, J. L. (1969). Shift-register synthesis and BCH decoding. *IEEE Transactions on Information Theory*, 15(1), 122–127. https://doi.org/10.1109/TIT.1969.1054260
 - McWeeny, K. H., Young, A. W., Hay, D. C., & Ellis, A. W. (1987). Putting names to faces. *British Journal of Psychology*, 78(2), 143–149. https://doi.org/10.1111/j.2044-8295.1987.tb02235.x
 - Nielsen, J., & Landauer, T. K. (1993). A mathematical model of the finding of usability problems. En *Proceedings of the INTERACT '93 and CHI '93 Conference on Human Factors in Computing Systems* (pp. 206–213). ACM. https://doi.org/10.1145/169059.169166
+- NXP Semiconductors. (s. f.). *NTAG213/215/216: NFC Forum Type 2 Tag compliant IC with 144/504/888 bytes user memory* (hoja de datos). https://www.nxp.com/docs/en/data-sheet/NTAG213_215_216.pdf
 - Otsu, N. (1979). A threshold selection method from gray-level histograms. *IEEE Transactions on Systems, Man, and Cybernetics*, 9(1), 62–66. https://doi.org/10.1109/TSMC.1979.4310076
-- Paivio, A. (1971). *Imagery and Verbal Processes*. Holt, Rinehart and Winston.
+- Paivio, A. (1971). *Imagery and Verbal Processes*. Holt, Rinehart and Winston. https://archive.org/details/imageryverbalpro0000paiv
 - Perreault, S. (2011). *vCard Format Specification* (RFC 6350). Internet Engineering Task Force. https://doi.org/10.17487/RFC6350
 - Reed, I. S., & Solomon, G. (1960). Polynomial codes over certain finite fields. *Journal of the Society for Industrial and Applied Mathematics*, 8(2), 300–304. https://doi.org/10.1137/0108018
-- Rogers, E. M. (1962). *Diffusion of Innovations*. Free Press.
+- Rogers, E. M. (2003). *Diffusion of Innovations* (5.ª ed.; 1.ª ed., 1962). Free Press. https://archive.org/details/diffusionofinnov00roge
 - Shannon, C. E. (1948). A mathematical theory of communication. *Bell System Technical Journal*, 27(3), 379–423; 27(4), 623–656. https://doi.org/10.1002/j.1538-7305.1948.tb01338.x
 - Shepard, R. N. (1967). Recognition memory for words, sentences, and pictures. *Journal of Verbal Learning and Verbal Behavior*, 6(1), 156–163. https://doi.org/10.1016/S0022-5371(67)80067-7
 - Standing, L. (1973). Learning 10,000 pictures. *Quarterly Journal of Experimental Psychology*, 25(2), 207–222. https://doi.org/10.1080/14640747308400340
 - Tulving, E., & Thomson, D. M. (1973). Encoding specificity and retrieval processes in episodic memory. *Psychological Review*, 80(5), 352–373. https://doi.org/10.1037/h0020071
 - W3C. (2018). *Web Content Accessibility Guidelines (WCAG) 2.1*. World Wide Web Consortium. https://www.w3.org/TR/WCAG21/
-- Woodland, N. J., & Silver, B. (1952). *Classifying apparatus and method* (Patente de EE. UU. 2 612 994).
+- W3C. (2023). *Web Share API* (W3C Recommendation). World Wide Web Consortium. https://www.w3.org/TR/web-share/
+- W3C Web NFC Community Group. (s. f.). *Web NFC* (borrador de informe del grupo comunitario). https://w3c-cg.github.io/web-nfc/
+- WHATWG. (s. f.). *Compression Standard* (estándar vivo). https://compression.spec.whatwg.org/
+- Woodland, N. J., & Silver, B. (1952). *Classifying apparatus and method* (Patente de EE. UU. 2 612 994). https://patents.google.com/patent/US2612994A/en
 - Yergeau, F. (2003). *UTF-8, a transformation format of ISO 10646* (RFC 3629). Internet Engineering Task Force. https://doi.org/10.17487/RFC3629

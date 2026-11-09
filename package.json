@@ -1,7 +1,7 @@
 {
   "name": "qr-business-card",
-  "version": "0.1.0",
-  "description": "Tarjeta de presentación como vCard e imagen con QR, con un codificador QR propio sin dependencias.",
+  "version": "0.2.0",
+  "description": "Tarjeta de presentación como vCard, imagen con QR y enlace sin servidor para NFC, con un codificador QR propio sin dependencias.",
   "private": true,
   "license": "MIT",
   "scripts": {
