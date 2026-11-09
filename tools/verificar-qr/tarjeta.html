@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Tarjeta de prueba</title>
+<style>html, body { margin: 0; padding: 0; background: #ffffff; overflow: hidden; } canvas { display: block; width: 1050px; height: 600px; }</style>
+</head>
+<body>
+<canvas id="tarjeta" width="1050" height="600"></canvas>
+<script src="../../src/qr.js"></script>
+<script src="../../src/vcard.js"></script>
+<script src="../../src/plantillas.js"></script>
+<script src="../../src/dibujo.js"></script>
+<script src="casos.js"></script>
+<script>
+  // Dibuja una tarjeta completa: ?p=<plantilla>&c=<índice del caso>. La usa tarjetas.js con Chrome sin ventana.
+  const q = new URLSearchParams(location.search);
+  const caso = CasosTarjeta[Number(q.get("c")) || 0];
+  const vcard = VCard.generar(caso.datos);
+  Dibujo.dibujar(document.getElementById("tarjeta"), caso.datos, QR.codificar(vcard), { plantilla: q.get("p") });
+</script>
+</body>
+</html>

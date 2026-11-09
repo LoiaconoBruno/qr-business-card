@@ -22,7 +22,8 @@ const VCard = (() => {
     return partes.join("\r\n ");
   }
 
-  function generar(d) {
+  // foto (opcional): { tipo: "JPEG" | "PNG", base64 }. Solo va en el archivo .vcf: en el QR no entraría.
+  function generar(d, { foto } = {}) {
     const v = (k) => (d[k] || "").trim();
     if (!v("nombre") && !v("apellido")) throw new Error("Hace falta al menos el nombre o el apellido");
     const lineas = ["BEGIN:VCARD", "VERSION:3.0"];
@@ -35,6 +36,7 @@ const VCard = (() => {
     if (v("web")) lineas.push(`URL:${escapar(v("web"))}`);
     if (v("direccion")) lineas.push(`ADR;TYPE=WORK:;;${escapar(v("direccion"))};;;;`);
     if (v("nota")) lineas.push(`NOTE:${escapar(v("nota"))}`);
+    if (foto && foto.base64) lineas.push(`PHOTO;ENCODING=b;TYPE=${foto.tipo === "PNG" ? "PNG" : "JPEG"}:${foto.base64}`);
     lineas.push("END:VCARD");
     return lineas.map(plegar).join("\r\n") + "\r\n";
   }

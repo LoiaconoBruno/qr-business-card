@@ -1,76 +1,221 @@
 <!doctype html>
-<html lang="es">
+<html lang="es-AR">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Tarjeta digital</title>
+  <title>Tarjeta digital · tu contacto con QR, enlace y NFC</title>
+  <meta name="description" content="Armá tu tarjeta de presentación en tres pasos: una imagen con QR, el contacto en .vcf, un enlace propio y un tag NFC. Sin cuentas ni servidor: todo pasa en tu navegador.">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f5f6f8">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0e1015">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%233a4bd6'/%3E%3Cpath d='M8 8h6v6H8zM18 8h6v6h-6zM8 18h6v6H8zM18 18h2v2h-2zM22 22h2v2h-2zM18 22h2v2h-2zM22 18h2v2h-2z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/sistema.css">
   <link rel="stylesheet" href="styles.css">
-  <style>
-    .dos { display: grid; grid-template-columns: 1fr 1fr; gap: 0 10px; }
-    @media (max-width: 500px) { .dos { grid-template-columns: 1fr; } }
-    #tarjeta { width: 100%; height: auto; aspect-ratio: 1050 / 600; border-radius: 12px; box-shadow: 0 6px 24px rgba(0,0,0,0.18); background: #fff; }
-    .info { font-size: 0.9rem; background: var(--surface-2); border-radius: 8px; padding: 10px 12px; }
-  </style>
+  <script src="src/qr.js" defer></script>
+  <script src="src/vcard.js" defer></script>
+  <script src="src/plantillas.js" defer></script>
+  <script src="src/dibujo.js" defer></script>
+  <script src="src/enlace.js" defer></script>
+  <script src="src/validar.js" defer></script>
+  <script src="src/app.js" defer></script>
 </head>
 <body>
-  <header class="top">
-    <h1>Tarjeta digital</h1>
-    <p>Tu tarjeta de presentación en dos formatos: un contacto ordenado (.vcf) y una imagen con un QR que, escaneado con la cámara de cualquier teléfono, agrega el contacto. Sin instalar nada.</p>
-    <p class="guia-link"><a href="guia.html">📄 Paper de uso y guía de la idea →</a></p>
+  <a class="saltar" href="#contenido">Saltar al contenido</a>
+
+  <header class="cabecera">
+    <div class="contenedor cabecera__fila">
+      <a class="marca" href="./">
+        <svg aria-hidden="true" width="28" height="28" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="currentColor"/><path d="M8 8h6v6H8zM18 8h6v6h-6zM8 18h6v6H8zM18 18h2v2h-2zM22 22h2v2h-2zM18 22h2v2h-2zM22 18h2v2h-2z" fill="var(--superficie)"/></svg>
+        Tarjeta digital
+      </a>
+      <nav aria-label="Enlaces">
+        <a href="guia.html">Paper y guía</a>
+        <a href="https://github.com/LoiaconoBruno/qr-business-card">Código</a>
+      </nav>
+    </div>
   </header>
 
-  <main>
-    <div class="layout">
-      <section class="card" aria-labelledby="t-datos">
-        <h2 id="t-datos">Tus datos</h2>
-        <form id="form" autocomplete="off">
-          <div class="dos">
-            <div><label for="nombre">Nombre</label><input type="text" id="nombre"></div>
-            <div><label for="apellido">Apellido</label><input type="text" id="apellido"></div>
-          </div>
-          <label for="cargo">Profesión o cargo</label><input type="text" id="cargo">
-          <label for="empresa">Empresa o consultorio</label><input type="text" id="empresa">
-          <div class="dos">
-            <div><label for="telefono">Teléfono</label><input type="tel" id="telefono"></div>
-            <div><label for="email">Email</label><input type="email" id="email"></div>
-          </div>
-          <label for="web">Web</label><input type="url" id="web">
-          <label for="direccion">Dirección</label><input type="text" id="direccion">
-          <label for="nota">Nota (solo en el contacto, no en la imagen)</label><input type="text" id="nota">
-          <label for="tema">Estilo</label>
-          <select id="tema"><option value="claro">Claro</option><option value="oscuro">Oscuro</option><option value="terracota">Terracota</option></select>
-        </form>
-        <div class="row" style="margin-top:12px"><button id="ejemplo">Cargar ejemplo</button><button id="limpiar">Limpiar</button></div>
+  <main id="contenido" tabindex="-1">
+    <div class="contenedor">
+      <section class="intro" aria-labelledby="titulo">
+        <h1 id="titulo">Tu tarjeta, lista para compartir</h1>
+        <p>Armala en tres pasos y llevátela de cuatro formas: una imagen con QR, el contacto en <code>.vcf</code>, un enlace propio y un tag NFC. Sin cuentas ni servidor: todo pasa en tu navegador.</p>
       </section>
 
-      <div style="display:grid; gap:16px; min-width:0">
-        <section class="card">
-          <h2>Vista previa</h2>
-          <canvas id="tarjeta" width="1050" height="600" aria-label="Vista previa de la tarjeta con el código QR"></canvas>
-          <p class="small" id="estado" aria-live="polite"></p>
-          <div class="row">
-            <button id="vcf" class="primary">Descargar contacto (.vcf)</button>
-            <button id="png">Descargar imagen (PNG)</button>
-            <button id="compartir" hidden>Compartir</button>
+      <div class="editor">
+        <aside class="editor__vista" aria-labelledby="vista-titulo">
+          <div class="vista">
+            <h2 id="vista-titulo" class="visualmente-oculto">Vista previa</h2>
+            <canvas id="tarjeta" width="1050" height="600" role="img" aria-label="Vista previa de la tarjeta">Tu navegador no puede dibujar la tarjeta.</canvas>
+            <p id="estado" class="vista__estado" aria-live="polite"></p>
           </div>
-        </section>
-        <section class="card">
-          <h2>Cómo se usa</h2>
-          <div class="info">
-            <p style="margin-top:0"><b>Para darla:</b> mostrá la imagen en tu teléfono (o imprimila): el otro la escanea con la cámara y le aparece "Agregar contacto". No necesita ninguna app.</p>
-            <p><b>Para guardarla:</b> la imagen va a la galería y se reconoce de un vistazo; como lleva el QR, la foto misma sirve para volver a importar el contacto.</p>
-            <p style="margin-bottom:0"><b>NFC:</b> esta versión no escribe tags NFC. Un tag con un enlace a la imagen o al .vcf publicado en la web hace lo mismo con un toque.</p>
-          </div>
-        </section>
+        </aside>
+
+        <div class="editor__pasos">
+          <ol class="pasos" aria-label="Pasos">
+            <li><button type="button" data-ir="1" aria-current="step" aria-controls="paso-1">Datos</button></li>
+            <li><button type="button" data-ir="2" aria-controls="paso-2">Diseño</button></li>
+            <li><button type="button" data-ir="3" aria-controls="paso-3">Compartir</button></li>
+          </ol>
+
+          <!-- Paso 1 -->
+          <section id="paso-1" class="panel paso" aria-labelledby="paso-1-titulo">
+            <h2 id="paso-1-titulo" tabindex="-1">Tus datos</h2>
+            <p class="paso__bajada">La vista previa se actualiza mientras escribís. Solo el nombre o el apellido son obligatorios.</p>
+            <form id="form" novalidate>
+              <div class="dos">
+                <div class="campo">
+                  <label for="nombre">Nombre</label>
+                  <input id="nombre" name="nombre" autocomplete="given-name" aria-describedby="nombre-error">
+                  <p class="campo__error" id="nombre-error"></p>
+                </div>
+                <div class="campo">
+                  <label for="apellido">Apellido</label>
+                  <input id="apellido" name="apellido" autocomplete="family-name" aria-describedby="apellido-error">
+                  <p class="campo__error" id="apellido-error"></p>
+                </div>
+              </div>
+              <div class="campo">
+                <label for="cargo">Profesión o cargo</label>
+                <input id="cargo" name="cargo" autocomplete="organization-title" aria-describedby="cargo-error">
+                <p class="campo__error" id="cargo-error"></p>
+              </div>
+              <div class="campo">
+                <label for="empresa">Empresa o consultorio</label>
+                <input id="empresa" name="empresa" autocomplete="organization" aria-describedby="empresa-error">
+                <p class="campo__error" id="empresa-error"></p>
+              </div>
+              <div class="dos">
+                <div class="campo">
+                  <label for="telefono">Teléfono</label>
+                  <input id="telefono" name="telefono" type="tel" inputmode="tel" autocomplete="tel" aria-describedby="telefono-ayuda telefono-error">
+                  <p class="campo__ayuda" id="telefono-ayuda">Con código de país: +54 9 11…</p>
+                  <p class="campo__error" id="telefono-error"></p>
+                </div>
+                <div class="campo">
+                  <label for="email">Email</label>
+                  <input id="email" name="email" type="email" inputmode="email" autocomplete="email" aria-describedby="email-error">
+                  <p class="campo__error" id="email-error"></p>
+                </div>
+              </div>
+              <div class="campo">
+                <label for="web">Web</label>
+                <input id="web" name="web" type="url" inputmode="url" autocomplete="url" aria-describedby="web-error">
+                <p class="campo__error" id="web-error"></p>
+              </div>
+              <div class="campo">
+                <label for="direccion">Dirección</label>
+                <input id="direccion" name="direccion" autocomplete="street-address" aria-describedby="direccion-error">
+                <p class="campo__error" id="direccion-error"></p>
+              </div>
+              <div class="campo">
+                <label for="nota">Nota</label>
+                <input id="nota" name="nota" aria-describedby="nota-ayuda nota-error">
+                <p class="campo__ayuda" id="nota-ayuda">Va en el contacto, no en la imagen. Por ejemplo, tus horarios.</p>
+                <p class="campo__error" id="nota-error"></p>
+              </div>
+
+              <fieldset class="imagen">
+                <legend class="etiqueta">Foto o logo (opcional)</legend>
+                <div class="imagen__fila">
+                  <label class="btn" for="archivo">
+                    <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24"><path d="M4 7h3l2-3h6l2 3h3v13H4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="4" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+                    Elegir imagen
+                  </label>
+                  <input id="archivo" class="visualmente-oculto" type="file" accept="image/png,image/jpeg,image/webp">
+                  <button type="button" class="btn btn--fantasma" id="quitar-imagen" hidden>Quitar</button>
+                </div>
+                <div class="formas" role="radiogroup" aria-label="Forma de la imagen">
+                  <label class="opcion"><input type="radio" name="forma" value="foto" checked> Foto (círculo)</label>
+                  <label class="opcion"><input type="radio" name="forma" value="logo"> Logo (cuadrado)</label>
+                </div>
+                <p class="campo__ayuda" id="imagen-estado" aria-live="polite">Va en la imagen y en el .vcf. No viaja en el QR ni en el enlace: no entraría.</p>
+              </fieldset>
+            </form>
+            <div class="acciones">
+              <button type="button" class="btn btn--fantasma" id="ejemplo">Cargar ejemplo</button>
+              <button type="button" class="btn btn--fantasma" id="limpiar">Limpiar</button>
+              <button type="button" class="btn btn--primario" data-ir="2">Siguiente: diseño</button>
+            </div>
+          </section>
+
+          <!-- Paso 2 -->
+          <section id="paso-2" class="panel paso" aria-labelledby="paso-2-titulo" hidden>
+            <h2 id="paso-2-titulo" tabindex="-1">Diseño</h2>
+            <p class="paso__bajada">El QR va siempre en un recuadro blanco con «Escaneame», así se lee en cualquier plantilla.</p>
+            <fieldset class="plantillas">
+              <legend class="visualmente-oculto">Plantilla</legend>
+              <div class="plantillas__grilla" id="plantillas"></div>
+            </fieldset>
+            <div class="acciones">
+              <button type="button" class="btn btn--fantasma" data-ir="1">Atrás</button>
+              <button type="button" class="btn btn--primario" data-ir="3">Siguiente: compartir</button>
+            </div>
+          </section>
+
+          <!-- Paso 3 -->
+          <section id="paso-3" class="panel paso" aria-labelledby="paso-3-titulo" hidden>
+            <h2 id="paso-3-titulo" tabindex="-1">Compartir</h2>
+
+            <div class="bloque">
+              <button type="button" class="btn btn--primario btn--grande btn--ancho" id="compartir" hidden>
+                <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24"><path d="M12 3v12M7 8l5-5 5 5M5 13v6a2 2 0 002 2h10a2 2 0 002-2v-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Compartir
+              </button>
+              <p class="campo__ayuda" id="compartir-nota"></p>
+              <div class="descargas">
+                <button type="button" class="btn" id="png">Descargar imagen (PNG)</button>
+                <button type="button" class="btn" id="vcf">Descargar contacto (.vcf)</button>
+              </div>
+            </div>
+
+            <div class="bloque">
+              <h3>Tu enlace</h3>
+              <p>Un link propio de tu tarjeta. Los datos van en el link mismo, después del <code>#</code>: no se guardan en ningún servidor. Quien lo abre ve tu tarjeta y un botón «Agregar contacto».</p>
+              <div class="enlace">
+                <label class="visualmente-oculto" for="enlace">Enlace de tu tarjeta</label>
+                <input id="enlace" readonly>
+                <button type="button" class="btn" id="copiar">Copiar</button>
+                <a class="btn" id="abrir" href="#" target="_blank" rel="noopener">Abrir</a>
+              </div>
+              <p class="campo__ayuda" id="enlace-info" aria-live="polite"></p>
+            </div>
+
+            <div class="bloque">
+              <h3>Acercar el celular</h3>
+              <p>Una página web no puede usar NameDrop ni escribir NFC desde un iPhone. Lo que sí funciona: grabar tu enlace en un sticker o tarjeta NFC. Cualquier iPhone o Android lo lee al acercarlo, sin instalar nada.</p>
+              <button type="button" class="btn btn--primario" id="nfc" hidden>
+                <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24"><path d="M6 8.5a6 6 0 010 7M9.5 6a10 10 0 010 12M13 3.5a14 14 0 010 17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                Grabar en tag NFC
+              </button>
+              <p class="campo__ayuda" id="nfc-estado" aria-live="polite"></p>
+              <details class="guia-nfc">
+                <summary>Cómo grabar el enlace con NFC Tools</summary>
+                <ol>
+                  <li>Conseguí un sticker o tarjeta NFC <strong>NTAG215 o NTAG216</strong>. Más abajo dice en cuáles entra tu enlace.</li>
+                  <li>Instalá <strong>NFC Tools</strong> (de wakdev) en tu iPhone o Android.</li>
+                  <li>Copiá tu enlace con el botón <strong>Copiar</strong>.</li>
+                  <li>En NFC Tools: <strong>Escribir → Agregar un registro → URL/URI</strong>, pegá el enlace y aceptá.</li>
+                  <li>Tocá <strong>Escribir</strong> y acercá el sticker a la parte de arriba del iPhone o a la parte de atrás del Android.</li>
+                  <li>Probalo: acercá otro teléfono al sticker. Aparece un aviso para abrir tu tarjeta.</li>
+                </ol>
+                <p>Si cambiás tus datos, el enlace cambia: hay que volver a grabarlo. Un sticker se puede regrabar muchas veces, salvo que lo bloquees.</p>
+              </details>
+            </div>
+
+            <div class="acciones">
+              <button type="button" class="btn btn--fantasma" data-ir="2">Atrás</button>
+            </div>
+          </section>
+        </div>
       </div>
     </div>
   </main>
 
-  <footer>Los datos no salen de tu navegador: no hay servidor. Se recuerdan en este navegador para la próxima vez.</footer>
-
-  <script src="src/qr.js"></script>
-  <script src="src/vcard.js"></script>
-  <script src="src/dibujo.js"></script>
-  <script src="src/app.js"></script>
+  <footer class="pie">
+    <div class="contenedor">
+      <p>Tus datos no salen de tu navegador: no hay servidor. Se recuerdan en este navegador para la próxima vez.</p>
+      <p><a href="guia.html">Paper de uso y guía</a> · <a href="https://github.com/LoiaconoBruno/qr-business-card">Código en GitHub</a> · Licencia MIT</p>
+    </div>
+  </footer>
 </body>
 </html>
