@@ -1,0 +1,105 @@
+# Sistema de diseño del portafolio · v1
+
+Un sistema chico, en un solo archivo CSS y sin dependencias, para que los proyectos con interfaz nueva se vean como un mismo portafolio. loiaAcademy queda afuera: tiene identidad propia.
+
+- **Archivo:** [`css/sistema.css`](../css/sistema.css). Este repositorio tiene la copia de referencia: los otros proyectos copian el archivo y no lo modifican. Si hace falta un cambio, se hace acá, se sube la versión del encabezado y se vuelve a copiar.
+- **Uso:** se enlaza antes de los estilos propios del proyecto, que solo agregan su layout.
+
+```html
+<link rel="stylesheet" href="css/sistema.css">
+<link rel="stylesheet" href="styles.css">
+```
+
+## Principios
+
+1. **Mobile-first.** Los estilos base son para 375 px; los anchos mayores se agregan con `min-width`.
+2. **Contraste AA medido**, no estimado, en claro y en oscuro (ver la tabla).
+3. **Foco visible** en todo lo que se puede tocar: contorno de 3 px del color de acento, separado 2 px del elemento.
+4. **Navegable con teclado**: un enlace "Saltar al contenido", orden lógico y nada que dependa solo del mouse.
+5. **Sin descargas**: la tipografía es la del sistema y no hay frameworks.
+6. **Movimiento opcional**: las transiciones solo se aplican con `prefers-reduced-motion: no-preference`.
+
+## Tokens
+
+### Tipografía
+
+| Token | Valor | Uso |
+|---|---|---|
+| `--fuente` | `ui-sans-serif, system-ui, …` | Texto e interfaz |
+| `--fuente-serif` | `"Iowan Old Style", Palatino, Georgia, …` | Títulos editoriales |
+| `--fuente-mono` | `ui-monospace, "SF Mono", Menlo, …` | Código y datos |
+| `--t-1` | 13 px | Notas |
+| `--t-2` | 14 px | Ayudas y chips |
+| `--t-3` | 16 px | Texto |
+| `--t-4` | 18 px | Destacados |
+| `--t-5` | 22 px | Subtítulos |
+| `--t-6` | 28 px | Títulos de sección |
+| `--t-7` | 32 a 44 px, con `clamp()` | Título principal |
+
+### Espaciado y radios
+
+Espaciado en una escala de 4 px: `--e-1` 4, `--e-2` 8, `--e-3` 12, `--e-4` 16, `--e-5` 24, `--e-6` 32, `--e-7` 48 y `--e-8` 64 px. El margen lateral es de 16 px en el celular y de 24 px desde 768 px.
+
+Radios: `--r-1` 8, `--r-2` 12 (botones y campos), `--r-3` 16 (paneles), `--r-4` 24 px y `--r-pildora` para chips.
+
+### Color
+
+| Token | Claro | Oscuro | Uso |
+|---|---|---|---|
+| `--fondo` | `#f5f6f8` | `#0e1015` | Fondo de la página |
+| `--superficie` | `#ffffff` | `#171a21` | Paneles y campos |
+| `--superficie-2` | `#eceff3` | `#20242d` | Zonas secundarias |
+| `--texto` | `#151820` | `#e8ebf0` | Texto principal |
+| `--texto-suave` | `#4d5563` | `#a6aebb` | Texto secundario |
+| `--borde` | `#d7dce4` | `#2d333e` | Separadores (decorativos) |
+| `--borde-control` | `#7c8595` | `#6b7484` | Borde de botones y campos |
+| `--acento` | `#3a4bd6` | `#93a0ff` | Acciones, enlaces y foco |
+| `--acento-texto` | `#ffffff` | `#0e1015` | Texto sobre el acento |
+| `--acento-suave` | `#eceefd` | `#242a4a` | Fondo de chips y pasos activos |
+| `--ok` | `#14704a` | `#4cc48a` | Confirmaciones |
+| `--aviso` | `#8f5600` | `#f0b35a` | Advertencias |
+| `--error` | `#b42318` | `#ff8b80` | Errores |
+
+El modo oscuro se activa solo, con `prefers-color-scheme: dark`.
+
+### Contrastes medidos
+
+Contraste mínimo de cada color sobre `--fondo`, `--superficie` y `--superficie-2`, con la fórmula de las WCAG 2.1:
+
+| Par | Claro | Oscuro | Mínimo AA |
+|---|---|---|---|
+| Texto | 15,39:1 | 13,00:1 | 4,5:1 |
+| Texto suave | 6,51:1 | 6,95:1 | 4,5:1 |
+| Acento | 5,77:1 | 6,45:1 | 4,5:1 |
+| Texto sobre acento | 6,65:1 | 7,89:1 | 4,5:1 |
+| Acento sobre acento suave | 5,77:1 | 5,79:1 | 4,5:1 |
+| Ok, aviso y error | 5,20:1 o más | 6,85:1 o más | 4,5:1 |
+| Borde de controles | 3,22:1 | 3,30:1 | 3:1 (componentes) |
+
+`--borde` es decorativo: separa paneles que ya se distinguen por su contenido, así que no necesita llegar a 3:1.
+
+## Componentes
+
+| Clase | Qué es |
+|---|---|
+| `.contenedor` | Ancho máximo centrado con márgenes laterales |
+| `.saltar` | Enlace "Saltar al contenido", visible al recibir el foco |
+| `.visualmente-oculto` | Oculta un texto a la vista pero no a los lectores de pantalla |
+| `.btn` | Botón de 44 px de alto como mínimo, con borde de control |
+| `.btn--primario` | Botón de la acción principal, con el color de acento |
+| `.btn--fantasma` | Botón secundario, sin fondo |
+| `.btn--grande`, `.btn--ancho` | Más alto, o a todo el ancho |
+| `.campo` | Etiqueta, control, ayuda (`.campo__ayuda`) y error (`.campo__error`); el control con `aria-invalid="true"` se marca con el color de error |
+| `.panel` | Superficie con borde, radio de 16 px y sombra suave |
+| `.chip`, `.chip--acento` | Etiqueta en forma de píldora |
+| `.aviso`, `--ok`, `--aviso`, `--error` | Mensaje destacado con borde de color |
+| `.pasos` | Indicador de pasos numerados; el actual lleva `aria-current="step"` |
+
+Además, `[hidden]` siempre oculta, aunque un componente defina su propio `display`.
+
+## Accesibilidad: lo que cada proyecto tiene que hacer
+
+- Un `lang` correcto en `<html>` y un `<title>` propio.
+- Una etiqueta (`<label>`) por cada campo; los errores enlazados con `aria-describedby` y anunciados con `aria-live`.
+- Los íconos decorativos con `aria-hidden="true"`; los botones que son solo un ícono, con texto oculto.
+- Probar cada página a 375 px y a 1440 px, en claro y en oscuro, y recorrerla con Tab.
