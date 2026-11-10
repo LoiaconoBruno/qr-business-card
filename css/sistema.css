@@ -1,4 +1,4 @@
-/* Sistema de diseño común del portafolio · v1
+/* Sistema de diseño común del portafolio · v1.1
    Lo comparten todos los proyectos con interfaz nueva (no loiaAcademy, que tiene identidad propia).
    Fuente canónica: qr-business-card/css/sistema.css. Documentación: docs/sistema-de-diseno.md.
 
@@ -420,4 +420,117 @@ code, kbd {
   .pasos button {
     transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
   }
+}
+
+/* Cabecera, intro y pie de página (comunes a todos los proyectos) */
+
+.cabecera {
+  border-bottom: 1px solid var(--borde);
+  background: var(--superficie);
+}
+
+.cabecera__fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e-2) var(--e-4);
+  min-height: 64px;
+}
+
+.marca {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e-2);
+  min-height: 44px;
+  color: var(--acento);
+  font-weight: 800;
+  font-size: var(--t-4);
+  text-decoration: none;
+}
+
+.marca:hover {
+  color: var(--acento-hover);
+}
+
+.cabecera nav {
+  display: flex;
+  gap: var(--e-4);
+}
+
+.cabecera nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--texto);
+  font-weight: 600;
+  font-size: var(--t-2);
+  text-decoration: none;
+}
+
+.cabecera nav a:hover {
+  color: var(--acento);
+  text-decoration: underline;
+}
+
+/* Intro */
+
+main:focus {
+  outline: none;
+}
+
+.intro {
+  max-width: 46rem;
+  padding: var(--e-6) 0 var(--e-5);
+}
+
+.intro p {
+  color: var(--texto-suave);
+  font-size: var(--t-4);
+  margin: 0;
+}
+
+.pie {
+  padding: var(--e-5) 0 var(--e-6);
+  border-top: 1px solid var(--borde);
+  color: var(--texto-suave);
+  font-size: var(--t-2);
+}
+
+.pie p {
+  margin: 0 0 var(--e-1);
+}
+
+/* Pestañas: role="tablist" con botones role="tab" y aria-selected. */
+
+.pestanas {
+  display: flex;
+  gap: var(--e-1);
+  overflow-x: auto;
+  border-bottom: 1px solid var(--borde);
+  margin-bottom: var(--e-4);
+  scrollbar-width: thin;
+}
+
+.pestanas [role="tab"] {
+  flex: none;
+  min-height: 44px;
+  padding: 0 var(--e-3);
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: none;
+  color: var(--texto-suave);
+  font: inherit;
+  font-weight: 600;
+  font-size: var(--t-2);
+  cursor: pointer;
+}
+
+.pestanas [role="tab"]:hover {
+  color: var(--texto);
+}
+
+.pestanas [role="tab"][aria-selected="true"] {
+  color: var(--acento);
+  border-bottom-color: var(--acento);
 }

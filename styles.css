@@ -1,73 +1,5 @@
 /* Tarjeta digital: estilos propios de la página. Los tokens y componentes vienen de css/sistema.css. */
 
-/* Cabecera */
-
-.cabecera {
-  border-bottom: 1px solid var(--borde);
-  background: var(--superficie);
-}
-
-.cabecera__fila {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--e-2) var(--e-4);
-  min-height: 64px;
-}
-
-.marca {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--e-2);
-  min-height: 44px;
-  color: var(--acento);
-  font-weight: 800;
-  font-size: var(--t-4);
-  text-decoration: none;
-}
-
-.marca:hover {
-  color: var(--acento-hover);
-}
-
-.cabecera nav {
-  display: flex;
-  gap: var(--e-4);
-}
-
-.cabecera nav a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  color: var(--texto);
-  font-weight: 600;
-  font-size: var(--t-2);
-  text-decoration: none;
-}
-
-.cabecera nav a:hover {
-  color: var(--acento);
-  text-decoration: underline;
-}
-
-/* Intro */
-
-main:focus {
-  outline: none;
-}
-
-.intro {
-  max-width: 46rem;
-  padding: var(--e-6) 0 var(--e-5);
-}
-
-.intro p {
-  color: var(--texto-suave);
-  font-size: var(--t-4);
-  margin: 0;
-}
-
 /* Editor: vista previa arriba en el celular; al lado y fija en pantallas anchas. */
 
 .editor {
@@ -366,19 +298,6 @@ main:focus {
 
 .guia-nfc p {
   margin: 0;
-}
-
-/* Pie */
-
-.pie {
-  padding: var(--e-5) 0 var(--e-6);
-  border-top: 1px solid var(--borde);
-  color: var(--texto-suave);
-  font-size: var(--t-2);
-}
-
-.pie p {
-  margin: 0 0 var(--e-1);
 }
 
 /* Página de contacto */

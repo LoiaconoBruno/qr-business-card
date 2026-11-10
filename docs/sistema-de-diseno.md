@@ -1,4 +1,4 @@
-# Sistema de diseño del portafolio · v1
+# Sistema de diseño del portafolio · v1.1
 
 Un sistema chico, en un solo archivo CSS y sin dependencias, para que los proyectos con interfaz nueva se vean como un mismo portafolio. loiaAcademy queda afuera: tiene identidad propia.
 
@@ -94,8 +94,17 @@ Contraste mínimo de cada color sobre `--fondo`, `--superficie` y `--superficie-
 | `.chip`, `.chip--acento` | Etiqueta en forma de píldora |
 | `.aviso`, `--ok`, `--aviso`, `--error` | Mensaje destacado con borde de color |
 | `.pasos` | Indicador de pasos numerados; el actual lleva `aria-current="step"` |
+| `.pestanas` | Pestañas con `role="tablist"`; la activa lleva `aria-selected="true"` |
+| `.cabecera`, `.cabecera__fila`, `.marca` | Barra superior con el nombre del proyecto y sus enlaces |
+| `.intro` | Título y bajada de la página, con ancho de lectura |
+| `.pie` | Pie con la nota de privacidad, los enlaces y la licencia |
 
 Además, `[hidden]` siempre oculta, aunque un componente defina su propio `display`.
+
+## Versiones
+
+- **v1.1:** la cabecera, la intro y el pie pasan al sistema (antes estaban en los estilos de la tarjeta), y se suman las pestañas. Primer uso fuera de qr-business-card: aidoc.
+- **v1:** tokens, paleta clara y oscura, botones, campos, paneles, chips, avisos y pasos.
 
 ## Accesibilidad: lo que cada proyecto tiene que hacer
 
