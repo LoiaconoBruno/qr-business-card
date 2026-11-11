@@ -66,7 +66,7 @@
       try {
         vcard = VCard.generar(paraContacto(datos));
         qr = QR.codificar(vcard);
-        salida.textContent = `QR versión ${qr.version}, corrección ${qr.nivel} (${new TextEncoder().encode(vcard).length} bytes).`;
+        salida.textContent = `✓ QR listo para escanear: guarda tu contacto completo (${new TextEncoder().encode(vcard).length} bytes; QR versión ${qr.version}, corrección ${qr.nivel}).`;
       } catch (e) {
         vcard = null;
         salida.textContent = "No entra en el QR: acortá la nota o la dirección.";
@@ -314,6 +314,17 @@
   });
   $("form").addEventListener("submit", (e) => e.preventDefault());
   $("ejemplo").addEventListener("click", () => { escribir(EJEMPLO); estado.tocados.clear(); render(); });
+  $("portada-empezar").addEventListener("click", () => {
+    irA(1);
+    $("nombre").scrollIntoView({ behavior: "smooth", block: "center" });
+    $("nombre").focus({ preventScroll: true });
+  });
+  $("portada-ejemplo").addEventListener("click", () => {
+    escribir(EJEMPLO);
+    estado.tocados.clear();
+    render();
+    document.querySelector(".editor").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
   $("limpiar").addEventListener("click", () => { escribir({}); estado.tocados.clear(); render(); $("nombre").focus(); });
 
   /* Arranque */

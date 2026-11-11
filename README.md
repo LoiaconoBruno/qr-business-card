@@ -43,7 +43,7 @@ npm test
 
 Abrí la [demo en vivo](https://loiaconobruno.github.io/qr-business-card/) o `index.html` con doble clic. Ejemplo:
 
-1. **Datos.** Apretá **Cargar ejemplo**: Ana Torres, odontóloga, con teléfono, email, web, dirección y una nota de horarios (datos inventados). Debajo de la vista previa aparece "QR versión 13, corrección M (298 bytes)." Si querés, sumá una foto o un logo.
+1. **Datos.** Apretá **Cargar ejemplo**: Ana Torres, odontóloga, con teléfono, email, web, dirección y una nota de horarios (datos inventados). Debajo de la vista previa aparece "✓ QR listo para escanear: guarda tu contacto completo (298 bytes; QR versión 13, corrección M)." Si querés, sumá una foto o un logo.
 2. **Diseño.** Elegí una de las cinco plantillas: Aurora, Grafito, Papel, Océano o Mínima. Cada una muestra tu tarjeta en miniatura.
 3. **Compartir.**
    - **Compartir** abre la hoja de compartir del sistema con la imagen y el contacto juntos. En iPhone, iPad y Mac, ahí está AirDrop.

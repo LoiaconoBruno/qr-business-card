@@ -80,7 +80,7 @@ La holgura existe porque una esquina redondeada se mete hacia adentro (1 − 1/�
 ### 5. Ejemplo resuelto
 
 1. **Cargar ejemplo.** Completa los datos de Ana Torres, odontóloga del Consultorio Torres, con teléfono, email, web, dirección y una nota de horarios. Los datos son inventados.
-2. **Vista previa.** Muestra la tarjeta con el QR a la derecha y, debajo: "QR versión 13, corrección M (298 bytes)". El contacto ocupa 298 bytes; la versión 13 con corrección M admite hasta 331, así que entra. Una versión 13 tiene 69 × 69 módulos.
+2. **Vista previa.** Muestra la tarjeta con el QR a la derecha y, debajo: "✓ QR listo para escanear: guarda tu contacto completo (298 bytes; QR versión 13, corrección M)". El contacto ocupa 298 bytes; la versión 13 con corrección M admite hasta 331, así que entra. Una versión 13 tiene 69 × 69 módulos.
 3. **Siguiente: diseño.** Aparecen las cinco plantillas con la tarjeta de Ana en miniatura. Con Papel, el nombre pasa a letra serif sobre fondo crema, y el QR queda igual.
 4. **Siguiente: compartir.** El botón «Compartir» usa la Web Share API (W3C, 2023) y abre la hoja de compartir del sistema con la imagen y el contacto; en iPhone, iPad y Mac esa hoja incluye AirDrop. Antes de mostrar el botón, la página pregunta al navegador qué archivos acepta. Si acepta la imagen pero no el .vcf, comparte solo la imagen y avisa que el contacto se baja con su botón. Si no comparte archivos, el botón no aparece y quedan las descargas.
 5. **Descargar contacto (.vcf).** Baja `ana-torres.vcf`, que se abre con la app de contactos de cualquier sistema. Su contenido es:
