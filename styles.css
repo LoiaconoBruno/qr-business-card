@@ -1,4 +1,82 @@
-/* Tarjeta digital: estilos propios de la página. Los tokens y componentes vienen de css/sistema.css. */
+/* Tarjeta digital: identidad propia sobre el sistema común (css/sistema.css v2.0).
+   Tipografía: Chivo, de Omnibus-Type (Argentina), licencia OFL (fonts/OFL.txt): una grotesca
+   firme, de papelería.
+   Paleta: la tarjeta apoyada sobre un escritorio gris; el rojo es el del sello de un consultorio.
+   Contrastes medidos (WCAG 2.1), mínimo sobre fondo y superficie:
+   claro: texto 15,2:1 · texto suave 6,2:1 · acento 5,8:1 · ok 5,1:1 · error 5,5:1 · bordes 3,6:1
+   oscuro: texto 14,4:1 · texto suave 7,6:1 · acento 7,5:1 · ok 7,6:1 · error 7,4:1 · bordes 3,7:1
+   botón: blanco sobre el rojo 6,9:1 (claro) · fondo oscuro sobre el rosa 8,2:1 (oscuro) */
+
+@font-face {
+  font-family: "Chivo";
+  src: url("fonts/chivo.woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+:root {
+  --fuente: "Chivo", ui-sans-serif, system-ui, sans-serif;
+  --fuente-titulos: "Chivo", ui-sans-serif, system-ui, sans-serif;
+  --peso-titulos: 800;
+  --tracking-titulos: -0.025em;
+  --fondo: #e9ecef;
+  --superficie: #ffffff;
+  --superficie-2: #f1f3f5;
+  --texto: #14171c;
+  --texto-suave: #4f5661;
+  --borde: #cdd3da;
+  --borde-control: #737b87;
+  --acento: #b3122e;
+  --acento-hover: #970f27;
+  --acento-texto: #ffffff;
+  --acento-suave: #fbe7ea;
+  --ok: #14704a;
+  --error: #b42318;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fondo: #121417;
+    --superficie: #1b1e23;
+    --superficie-2: #23272d;
+    --texto: #eceef1;
+    --texto-suave: #a9b0ba;
+    --borde: #2c3137;
+    --borde-control: #6f7782;
+    --acento: #ff8a9b;
+    --acento-hover: #ffa6b3;
+    --acento-texto: #121417;
+    --acento-suave: #3a2027;
+    --ok: #4cc48a;
+    --error: #ff8b80;
+  }
+}
+
+/* La mesa de la portada: la tarjeta de ejemplo apoyada, con su sombra. */
+.mesa { margin: 0; display: grid; justify-items: center; gap: var(--e-4); }
+.mesa__tarjeta {
+  display: block;
+  width: min(100%, 560px);
+  height: auto;
+  aspect-ratio: 1050 / 600;
+  border-radius: 14px;
+  box-shadow: 0 2px 4px rgba(20, 23, 28, 0.08), 0 28px 50px -22px rgba(20, 23, 28, 0.5);
+  transform: rotate(-3deg);
+  animation: tarjeta-apoya 700ms cubic-bezier(.2, .8, .2, 1) both;
+}
+@keyframes tarjeta-apoya {
+  from { opacity: 0; transform: translateY(-18px) rotate(-9deg); box-shadow: 0 2px 4px rgba(20, 23, 28, 0.04), 0 50px 70px -30px rgba(20, 23, 28, 0.35); }
+  to { opacity: 1; transform: rotate(-3deg); }
+}
+.mesa__pie { max-width: 30rem; margin: 0; color: var(--texto-suave); font-size: var(--t-2); text-align: center; }
+
+/* Las cuatro maneras de compartir: no son pasos, así que van sin números. */
+.maneras { margin: 0 0 var(--e-6); }
+.maneras h2 { font-size: var(--t-5); }
+.maneras__lista { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: var(--e-4) var(--e-5); margin: 0; padding: 0; list-style: none; }
+.maneras__lista li { padding-top: var(--e-3); border-top: 2px solid var(--texto); }
+.maneras__lista strong { display: block; font-size: var(--t-4); }
+.maneras__lista span { color: var(--texto-suave); font-size: var(--t-2); }
 
 /* Editor: vista previa arriba en el celular; al lado y fija en pantallas anchas. */
 

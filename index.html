@@ -5,18 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Tarjeta digital · tu contacto con QR, enlace y NFC</title>
   <meta name="description" content="Armá tu tarjeta de presentación en tres pasos: una imagen con QR, el contacto en .vcf, un enlace propio y un tag NFC. Sin cuentas ni servidor: todo pasa en tu navegador.">
-  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f5f6f8">
-  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0e1015">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%233a4bd6'/%3E%3Cpath d='M8 8h6v6H8zM18 8h6v6h-6zM8 18h6v6H8zM18 18h2v2h-2zM22 22h2v2h-2zM18 22h2v2h-2zM22 18h2v2h-2z' fill='%23fff'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="css/sistema.css?v=1.2">
-  <link rel="stylesheet" href="styles.css?v=1.2">
-  <script src="src/qr.js?v=1.2" defer></script>
-  <script src="src/vcard.js?v=1.2" defer></script>
-  <script src="src/plantillas.js?v=1.2" defer></script>
-  <script src="src/dibujo.js?v=1.2" defer></script>
-  <script src="src/enlace.js?v=1.2" defer></script>
-  <script src="src/validar.js?v=1.2" defer></script>
-  <script src="src/app.js?v=1.2" defer></script>
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#e9ecef">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#121417">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23b3122e'/%3E%3Cpath d='M8 8h6v6H8zM18 8h6v6h-6zM8 18h6v6H8zM18 18h2v2h-2zM22 22h2v2h-2zM18 22h2v2h-2zM22 18h2v2h-2z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="preload" href="fonts/chivo.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/sistema.css?v=2.0">
+  <link rel="stylesheet" href="styles.css?v=2.0">
+  <script src="src/qr.js?v=2.0" defer></script>
+  <script src="src/vcard.js?v=2.0" defer></script>
+  <script src="src/plantillas.js?v=2.0" defer></script>
+  <script src="src/dibujo.js?v=2.0" defer></script>
+  <script src="src/enlace.js?v=2.0" defer></script>
+  <script src="src/validar.js?v=2.0" defer></script>
+  <script src="src/app.js?v=2.0" defer></script>
 </head>
 <body>
   <a class="saltar" href="#contenido">Saltar al contenido</a>
@@ -37,18 +38,28 @@
   <main id="contenido" tabindex="-1">
     <div class="contenedor">
       <section class="portada" aria-labelledby="titulo">
-        <span class="portada__etiqueta">Gratis, sin cuentas y sin servidor</span>
-        <h1 id="titulo">Tu tarjeta de presentación, directo al celular del otro</h1>
-        <p class="portada__bajada">Completás tus datos una vez y te llevás cuatro formas de compartirlos: una imagen con un código QR para mostrar o imprimir, un contacto que se guarda en la agenda con un toque, un enlace para mandar por WhatsApp y un sticker NFC que se lee apoyando el celular.</p>
-        <div class="portada__acciones">
-          <button type="button" class="btn btn--blanco btn--grande" id="portada-empezar">Armar mi tarjeta</button>
-          <button type="button" class="btn btn--claro btn--grande" id="portada-ejemplo">Ver una de ejemplo</button>
+        <div class="portada__texto">
+          <h1 id="titulo">Tu tarjeta de presentación, directo al celular del otro</h1>
+          <p class="portada__bajada">Completás tus datos una vez y te llevás tu tarjeta con un código QR que guarda tu contacto. Sin cuentas ni servidor: todo pasa en tu navegador.</p>
+          <div class="portada__acciones">
+            <button type="button" class="btn btn--primario btn--grande" id="portada-empezar">Armar mi tarjeta</button>
+            <button type="button" class="btn btn--grande" id="portada-ejemplo">Ver una de ejemplo</button>
+          </div>
         </div>
-        <ol class="como-funciona" aria-label="Cómo funciona">
-          <li><strong>Completá tus datos</strong><span>Nombre, cargo y cómo contactarte. La tarjeta se arma a la derecha mientras escribís.</span></li>
-          <li><strong>Elegí el diseño</strong><span>Cuatro estilos y tus colores, siempre con un QR que se lee bien.</span></li>
-          <li><strong>Compartila</strong><span>Bajá la imagen o el contacto, copiá tu enlace o grabá un sticker NFC.</span></li>
-        </ol>
+        <figure class="portada__objeto mesa">
+          <canvas id="portada-tarjeta" class="mesa__tarjeta" width="1050" height="600" role="img" aria-label="Tarjeta de ejemplo de Ana Torres, odontóloga, con un código QR que guarda su contacto"></canvas>
+          <figcaption class="mesa__pie">La tarjeta de ejemplo, con un QR real: si lo escaneás con el celular, te ofrece guardar el contacto. Los datos son inventados.</figcaption>
+        </figure>
+      </section>
+
+      <section class="maneras" aria-labelledby="t-maneras">
+        <h2 id="t-maneras">Cuatro formas de compartirla</h2>
+        <ul class="maneras__lista">
+          <li><strong>Imagen con QR</strong><span>Para mostrar en el celular, mandar o imprimir.</span></li>
+          <li><strong>Contacto (.vcf)</strong><span>Se guarda en la agenda del otro con un toque.</span></li>
+          <li><strong>Enlace propio</strong><span>Para mandar por WhatsApp o por mail.</span></li>
+          <li><strong>Sticker NFC</strong><span>Se lee apoyando el celular, sin abrir nada.</span></li>
+        </ul>
       </section>
 
       <div class="editor">

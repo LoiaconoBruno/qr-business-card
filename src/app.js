@@ -314,6 +314,20 @@
   });
   $("form").addEventListener("submit", (e) => e.preventDefault());
   $("ejemplo").addEventListener("click", () => { escribir(EJEMPLO); estado.tocados.clear(); render(); });
+  // La tarjeta de la portada: el ejemplo dibujado con el mismo código que la vista previa.
+  // Oscura sobre el escritorio claro y blanca sobre el oscuro, para que siempre se despegue.
+  const temaOscuro = matchMedia("(prefers-color-scheme: dark)");
+  function portadaTarjeta() {
+    try {
+      const qrEjemplo = QR.codificar(VCard.generar(paraContacto(EJEMPLO)));
+      Dibujo.dibujar($("portada-tarjeta"), EJEMPLO, qrEjemplo, { plantilla: temaOscuro.matches ? "minima" : "grafito", forma: "foto" });
+    } catch {
+      $("portada-tarjeta").closest("figure").hidden = true;
+    }
+  }
+  portadaTarjeta();
+  temaOscuro.addEventListener("change", portadaTarjeta);
+
   $("portada-empezar").addEventListener("click", () => {
     irA(1);
     $("nombre").scrollIntoView({ behavior: "smooth", block: "center" });

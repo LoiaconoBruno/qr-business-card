@@ -1,9 +1,9 @@
-# Sistema de diseño del portafolio · v1.1
+# Sistema de diseño del portafolio · v2.0
 
 Un sistema chico, en un solo archivo CSS y sin dependencias, para que los proyectos con interfaz nueva se vean como un mismo portafolio. loiaAcademy queda afuera: tiene identidad propia.
 
 - **Archivo:** [`css/sistema.css`](../css/sistema.css). Este repositorio tiene la copia de referencia: los otros proyectos copian el archivo y no lo modifican. Si hace falta un cambio, se hace acá, se sube la versión del encabezado y se vuelve a copiar.
-- **Uso:** se enlaza antes de los estilos propios del proyecto, que solo agregan su layout.
+- **Uso:** se enlaza antes de los estilos propios del proyecto. Desde v2.0, cada proyecto pone en su `styles.css` su identidad: tipografía, paleta y el objeto de su portada (ver «Identidades»).
 
 ```html
 <link rel="stylesheet" href="css/sistema.css">
@@ -16,7 +16,9 @@ Un sistema chico, en un solo archivo CSS y sin dependencias, para que los proyec
 2. **Contraste AA medido**, no estimado, en claro y en oscuro (ver la tabla).
 3. **Foco visible** en todo lo que se puede tocar: contorno de 3 px del color de acento, separado 2 px del elemento.
 4. **Navegable con teclado**: un enlace "Saltar al contenido", orden lógico y nada que dependa solo del mouse.
-5. **Sin descargas**: la tipografía es la del sistema y no hay frameworks.
+5. **Sin pedidos a terceros**: cada app sirve su tipografía desde su propio repositorio (`fonts/`, con la licencia OFL al lado), así funciona sin conexión y con doble clic. No hay frameworks.
+7. **Una cosa memorable por app** (v2.0): la portada muestra el objeto propio del tema, hecho con datos reales del código; alrededor, todo sobrio. Nada de degradados decorativos, rótulos en pastilla sobre los títulos ni rótulos en mayúsculas.
+8. **Familia, no clones** (v2.0): todas las tipografías son de diseñadores argentinos, con licencia libre. La estructura, los controles y el foco son comunes; el carácter es de cada app.
 6. **Movimiento opcional**: las transiciones solo se aplican con `prefers-reduced-motion: no-preference`.
 
 ## Tokens
@@ -28,6 +30,7 @@ Un sistema chico, en un solo archivo CSS y sin dependencias, para que los proyec
 | `--fuente` | `ui-sans-serif, system-ui, …` | Texto e interfaz |
 | `--fuente-serif` | `"Iowan Old Style", Palatino, Georgia, …` | Títulos editoriales |
 | `--fuente-mono` | `ui-monospace, "SF Mono", Menlo, …` | Código y datos |
+| `--fuente-titulos`, `--peso-titulos`, `--tracking-titulos` | `--fuente`, 750, −0,02 em | Títulos; cada app los cambia (v2.0) |
 | `--t-1` | 13 px | Notas |
 | `--t-2` | 14 px | Ayudas y chips |
 | `--t-3` | 16 px | Texto |
@@ -60,10 +63,6 @@ Radios: `--r-1` 8, `--r-2` 12 (botones y campos), `--r-3` 16 (paneles), `--r-4` 
 | `--aviso` | `#8f5600` | `#f0b35a` | Advertencias |
 | `--error` | `#b42318` | `#ff8b80` | Errores |
 | `--ok-suave`, `--aviso-suave`, `--error-suave` | `#e3f4ea`, `#fbf0dc`, `#fce8e6` | `#17302a`, `#33291a`, `#3a1f1f` | Fondo de las etiquetas de estado (v1.2) |
-| `--acento-2` | `#c2410c` | `#ff9e6b` | Segundo acento, cálido, para destacar (v1.2) |
-| `--degradado` | `#3443c9` → `#6b2fd1` → `#b4236a` | `#2a338f` → `#4d2399` → `#8a1b52` | Fondo de la portada (v1.2) |
-| `--degradado-1` | `#3443c9` | `#2a338f` | Texto de los botones blancos y números de pasos sobre la portada |
-| `--sobre-degradado`, `--sobre-degradado-suave` | `#ffffff`, `#e6e9ff` | iguales | Texto sobre la portada |
 
 El modo oscuro se activa solo, con `prefers-color-scheme: dark`.
 
@@ -80,11 +79,7 @@ Contraste mínimo de cada color sobre `--fondo`, `--superficie` y `--superficie-
 | Acento sobre acento suave | 5,77:1 | 5,79:1 | 4,5:1 |
 | Ok, aviso y error | 5,20:1 o más | 6,85:1 o más | 4,5:1 |
 | Borde de controles | 3,22:1 | 3,30:1 | 3:1 (componentes) |
-| Blanco sobre el degradado (v1.2) | 6,20:1 o más | 8,90:1 o más | 4,5:1 |
-| Bajada de la portada (`#e6e9ff`) sobre el degradado (v1.2) | 5,15:1 o más | 7,40:1 o más | 4,5:1 |
-| Texto de los pasos, blanco sobre su tarjeta translúcida (v1.2) | 5,09:1 o más | 6,87:1 o más | 4,5:1 |
 | Ok, aviso, error y acento sobre su fondo suave (v1.2) | 5,32:1 o más | 5,79:1 o más | 4,5:1 |
-| Segundo acento (v1.2) | 4,72:1 | 8,59:1 | 4,5:1 |
 
 `--borde` es decorativo: separa paneles que ya se distinguen por su contenido, así que no necesita llegar a 3:1.
 
@@ -108,17 +103,17 @@ Contraste mínimo de cada color sobre `--fondo`, `--superficie` y `--superficie-
 | `.cabecera`, `.cabecera__fila`, `.marca` | Barra superior con el nombre del proyecto y sus enlaces |
 | `.intro` | Título y bajada de la página, con ancho de lectura |
 | `.pie` | Pie con la nota de privacidad, los enlaces y la licencia |
-| `.portada` (v1.2) | Banda con degradado de borde a borde arriba de cada app: `.portada__etiqueta`, `h1`, `.portada__bajada` y `.portada__acciones` con `.btn--blanco` y `.btn--claro`. Va dentro de `.contenedor` y se estira sola |
-| `.como-funciona` (v1.2) | Lista de tres pasos numerados, cada uno con `<strong>` y `<span>`; dentro de la portada se ve translúcida |
-| `.datos`, `.dato` (v1.2) | Grilla de números grandes con título, valor y nota; la franja de arriba dice el estado (`--ok`, `--aviso`, `--error`, `--neutro`) |
-| `.estado` (v1.2) | Etiqueta de estado con color, ícono y texto: el color nunca va solo |
-| `.explica` (v1.2) | `<details>` con un «¿Qué es esto?» para explicar la jerga sin ocupar lugar |
-| `.titulo-icono` (v1.2) | Título con un ícono en un cuadrado de color |
+| `.portada` (v2.0) | Grilla de dos columnas desde 960 px: `.portada__texto` (`h1`, `.portada__bajada`, `.portada__acciones`) y `.portada__objeto`, que dibuja cada app. Sin fondo propio |
+| `.como-funciona` | Pasos que de verdad van en orden, sobre una línea: número, `<strong>` y `<span>`. Si no es una secuencia, no se usa |
+| `.datos`, `.dato` | Marcador: varios números en una sola pieza, separados por líneas finas; el estado lo dice la etiqueta `.estado`, con palabras |
+| `.estado` | Etiqueta de estado con color, ícono y texto: el color nunca va solo |
+| `.explica` | `<details>` con un «¿Qué es esto?» para explicar la jerga sin ocupar lugar |
 
 Además, `[hidden]` siempre oculta, aunque un componente defina su propio `display`.
 
 ## Versiones
 
+- **v2.0:** identidad por app. Cada una sirve su tipografía (Archivo, Rosario, Alegreya y Chivo, de diseñadores argentinos, OFL), define su paleta con los contrastes medidos en su `styles.css` y muestra en la portada un objeto propio hecho con datos reales. Se sacan el degradado, los botones blancos sobre degradado, los rótulos en pastilla y los rótulos en mayúsculas; el marcador reemplaza a las tarjetas de datos; hay una regla para `prefers-reduced-motion`.
 - **v1.2:** más color y más guía. Portada con degradado y «cómo funciona» en tres pasos, datos con estado, etiquetas de estado, ayudas plegables, pestañas segmentadas, fondo apenas azulado y ayudas de campo a 14 px. Todo medido en AA, en claro y en oscuro. Se aplicó a las cuatro apps nuevas del portafolio.
 - **v1.1:** la cabecera, la intro y el pie pasan al sistema (antes estaban en los estilos de la tarjeta), y se suman las pestañas. Primer uso fuera de qr-business-card: aidoc.
 - **v1:** tokens, paleta clara y oscura, botones, campos, paneles, chips, avisos y pasos.
@@ -129,3 +124,14 @@ Además, `[hidden]` siempre oculta, aunque un componente defina su propio `displ
 - Una etiqueta (`<label>`) por cada campo; los errores enlazados con `aria-describedby` y anunciados con `aria-live`.
 - Los íconos decorativos con `aria-hidden="true"`; los botones que son solo un ícono, con texto oculto.
 - Probar cada página a 375 px y a 1440 px, en claro y en oscuro, y recorrerla con Tab.
+
+## Identidades (v2.0)
+
+| App | Tipografía | Paleta | Objeto de la portada |
+|---|---|---|---|
+| qr-business-card | Chivo (Omnibus-Type) | Escritorio gris `#e9ecef`, tinta `#14171c`, rojo sello `#b3122e` | La tarjeta de ejemplo con su QR real, apoyada sobre el escritorio |
+| aidoc | Alegreya y Alegreya Sans (Huerta Tipográfica) | Papel `#fafafa`, tinta `#1b1e24`, azul tinta `#2742a5`, resaltador `#ffe45c` | La página de ejemplo antes y después: el ruido tachado y lo que queda resaltado, con la cuenta real de tokens |
+| classroom-observatory | Rosario (Omnibus-Type) | Verde pizarrón `#1e3b32`, tiza `#f1f5f2`, tiza amarilla `#f5d061` | El plano de la clase de ejemplo; los bancos de quienes hablaron se iluminan en el orden en que hablaron |
+| narrative-trading-journal | Archivo (Omnibus-Type), con su eje de ancho | Azul noche `#0e1a33`, ámbar de tablero `#ffb547`; verde y rojo solo para subir y bajar | La pizarra de la rueda con las propuestas del día |
+
+Cada `styles.css` empieza con su `@font-face`, sus tokens en claro y en oscuro y una tabla de contrastes medidos. Todas pasan AA.
