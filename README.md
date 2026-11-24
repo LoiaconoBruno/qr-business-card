@@ -4,7 +4,7 @@
 
 **Tarjeta digital.** Armá tu tarjeta en tres pasos y compartila como contacto (.vcf), como imagen con un QR que cualquier cámara convierte en contacto, por AirDrop, o con un enlace propio que podés grabar en un sticker NFC. Sin servidor, sin dependencias y con un codificador QR propio.
 
-[**▶ Probala en vivo**](https://loiaconobruno.github.io/qr-business-card/) · [**📄 Paper y guía**](https://loiaconobruno.github.io/qr-business-card/guia.html) · [Cómo funciona](#cómo-funciona) · [Limitaciones](#limitaciones)
+[**▶ Probala en vivo**](https://loiaconobruno.github.io/qr-business-card/) · [**📄 Paper y guía**](https://loiaconobruno.github.io/qr-business-card-paper/) · [Cómo funciona](#cómo-funciona) · [Limitaciones](#limitaciones)
 
 [![Tests](https://github.com/LoiaconoBruno/qr-business-card/actions/workflows/tests.yml/badge.svg)](https://github.com/LoiaconoBruno/qr-business-card/actions/workflows/tests.yml)
 ![Dependencias: 0](https://img.shields.io/badge/dependencias-0-brightgreen)
@@ -130,7 +130,7 @@ Tres contactos en las cinco plantillas: **15 de 15**.
 
 ## Paper de uso y guía
 
-[`guia.html`](https://loiaconobruno.github.io/qr-business-card/guia.html) (fuente en [`docs/guia.md`](docs/guia.md), generada con `python3 tools/guia.py`) tiene un paper de uso paso a paso y una guía sobre la idea de fondo: el QR por dentro, vCard, el enlace y los tags NFC, y la psicología de recordar caras. Las referencias tienen DOI o URL.
+El repositorio [`qr-business-card-paper`](https://github.com/LoiaconoBruno/qr-business-card-paper) ([leelo en la web](https://loiaconobruno.github.io/qr-business-card-paper/)) tiene un paper de uso paso a paso y una guía sobre la idea de fondo: el QR por dentro, vCard, el enlace y los tags NFC, y la psicología de recordar caras. Las referencias tienen DOI o URL.
 
 ## Licencia
 
